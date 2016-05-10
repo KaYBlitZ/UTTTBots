@@ -37,10 +37,14 @@ public class Field {
 
 	private final int COLS = 9, ROWS = 9;
 	private String mLastError = "";
+	private ArrayList<Move> moves;
+	private ArrayList<MacroState> macroStates;
 	
 	public Field() {
 		mBoard = new int[COLS][ROWS];
 		mMacroboard = new int[COLS / 3][ROWS / 3];
+		moves = new ArrayList<Move>(81);
+		macroStates = new ArrayList<MacroState>(81);
 		clearBoard();
 	}
 	
@@ -54,6 +58,7 @@ public class Field {
 	        mRoundNr = Integer.parseInt(value);
 	    } else if (key.equals("move")) {
 	        mMoveNr = Integer.parseInt(value);
+	        System.err.println("Move " + mMoveNr);
 	    } else if (key.equals("field")) {
             parseFromString(value); /* Parse Field with data */
         } else if (key.equals("macroboard")) {
@@ -66,7 +71,6 @@ public class Field {
 	 * @param String : 
 	 */
 	public void parseFromString(String s) {
-	    System.err.println("Move " + mMoveNr);
 		String[] r = s.split(",");
 		int counter = 0;
 		for (int y = 0; y < ROWS; y++) {
@@ -115,7 +119,7 @@ public class Field {
 	}
 	
 	public boolean isInActiveMicroboard(int x, int y) {
-	    return mMacroboard[(int) x/3][(int) y/3] == -1;
+	    return mMacroboard[x/3][y/3] == -1;
 	}
 	
 	/**
@@ -138,18 +142,29 @@ public class Field {
 	 *         empty.
 	 */
 	public String toString() {
-		String r = "";
+		StringBuilder sb = new StringBuilder();
 		int counter = 0;
 		for (int y = 0; y < ROWS; y++) {
 			for (int x = 0; x < COLS; x++) {
-				if (counter > 0) {
-					r += ",";
-				}
-				r += mBoard[x][y];
+				if (counter > 0) sb.append(',');
+				sb.append(mBoard[x][y]);
 				counter++;
 			}
 		}
-		return r;
+		return sb.toString();
+	}
+	
+	public String toStringMacro() {
+		StringBuilder sb = new StringBuilder();
+		int counter = 0;
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				if (counter > 0) sb.append(',');
+				sb.append(mMacroboard[x][y]);
+				counter++;
+			}
+		}
+		return sb.toString();
 	}
 	
 	/**
@@ -192,5 +207,142 @@ public class Field {
 	 */
 	public int getPlayerId(int column, int row) {
 		return mBoard[column][row];
+	}
+	
+	/**
+	 * Returns -1 if game is not over, 0 if tie, else returns the winner
+	 * @return
+	 */
+	public int getWinner() {
+		if (mMacroboard[0][0] > 0 && mMacroboard[0][0] == mMacroboard[1][1] &&
+				mMacroboard[1][1] == mMacroboard[2][2]) { // \ diagonal
+			return mMacroboard[0][0];
+		} else if (mMacroboard[0][2] > 0 && mMacroboard[0][2] == mMacroboard[1][1] &&
+				mMacroboard[1][1] == mMacroboard[2][0]) { // / diagonal
+			return mMacroboard[0][2];
+		}
+		
+		// check vertical
+		for (int x = 0; x < 3; x++) {
+			if (mMacroboard[x][0] > 0 && mMacroboard[x][0] == mMacroboard[x][1] &&
+					mMacroboard[x][1] == mMacroboard[x][2]) {
+				return mMacroboard[x][0];
+			}
+		}
+		
+		// check horizontal
+		for (int y = 0; y < 3; y++) {
+			if (mMacroboard[0][y] > 0 && mMacroboard[0][y] == mMacroboard[1][y] &&
+					mMacroboard[1][y] == mMacroboard[2][y]) {
+				return mMacroboard[0][y];
+			}
+		}
+		
+		for (int col = 0; col < 3; col++) {
+			for (int row = 0; row < 3; row++) {
+				// game still playable
+				if (mMacroboard[col][row] == -1) return -1;
+			}
+		}
+		
+		return 0;
+	}
+	
+	public boolean makeMove(Move move, int id) {
+		return makeMove(move.column, move.row, id);
+	}
+	
+	public boolean makeMove(int column, int row, int id) {
+		if (mBoard[column][row] > 0) return false;
+		
+		mBoard[column][row] = id; // do move
+		moves.add(new Move(column, row)); // save move
+		// save original macro board state
+		MacroState state = new MacroState();
+		state.saveState(mMacroboard);
+		macroStates.add(state);
+		// update macro board state
+		updateMacro(column, row);
+		return true;
+	}
+	
+	public void updateMacro(int column, int row) {
+		// ie: 3,2 move -> 0,2 macro -> 0,6 top-left box coords
+		// convert move coords into next macro board coords 
+		while (column > 2) column -= 3;
+		while (row > 2) row -= 3;
+		// convert macro board coords into top-left box coords
+		int bCol = column * 3;
+		int bRow = row * 3;
+
+		// whether the next board is finished or not
+		boolean nextMiniOpen = getMiniWinner(bCol, bRow) == -1;
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
+				int winner = getMiniWinner(x * 3, y * 3);
+				if (winner >= 0) { // winner, tie
+					mMacroboard[x][y] = winner;
+				} else { // open mini TTT, need to check if playable or not
+					if (!nextMiniOpen || (x == column && y == row)) {
+						// if next board is finished all open boards are playable
+						// else set playable only if its the nextMacroIndex
+						mMacroboard[x][y] = -1;
+					} else {
+						mMacroboard[x][y] = 0;
+					}
+				}
+			}
+		}
+	}
+	
+	public void undo() {
+		// undo move
+		Move lastMove = moves.remove(moves.size() - 1);
+		mBoard[lastMove.column][lastMove.row] = 0;
+		// restore original macro state
+		MacroState lastMacro = macroStates.remove(macroStates.size() - 1);
+		lastMacro.restoreState(mMacroboard);
+	}
+	
+	public int[][] getMacroboard() {
+		return mMacroboard;
+	}
+	
+	private int getMiniWinner(int topLeftColumn, int topLeftRow) {
+		int m00 = mBoard[topLeftColumn][topLeftRow];
+		int m10 = mBoard[topLeftColumn + 1][topLeftRow];
+		int m20 = mBoard[topLeftColumn + 2][topLeftRow];
+		int m01 = mBoard[topLeftColumn][topLeftRow + 1];
+		int m11 = mBoard[topLeftColumn + 1][topLeftRow + 1];
+		int m21 = mBoard[topLeftColumn + 2][topLeftRow + 1];
+		int m02 = mBoard[topLeftColumn][topLeftRow + 2];
+		int m12 = mBoard[topLeftColumn + 1][topLeftRow + 2];
+		int m22 = mBoard[topLeftColumn + 2][topLeftRow + 2];
+    	
+		/* Check for vertical wins */
+        if (m00 > 0 && m00 == m01 && m01 == m02) return m00;
+        if (m10 > 0 && m10 == m11 && m11 == m12) return m10;
+        if (m20 > 0 && m20 == m21 && m21 == m22) return m20;
+        
+		/* Check for horizontal wins */
+        if (m00 > 0 && m00 == m10 && m10 == m20) return m00;
+        if (m01 > 0 && m01 == m11 && m11 == m21) return m01;
+        if (m02 > 0 && m02 == m12 && m12 == m22) return m02;
+        
+		/* Check for forward diagonal wins - / */
+		if (m02 > 0 && m02 == m11 && m11 == m20) return m02;
+		
+		/* Check for backward diagonal wins - \ */
+		if (m00 > 0 && m00 == m11 && m11 == m22) return m00;
+		
+		// check if the board is full
+		if (m00 == 0 || m10 == 0 || m20 == 0 ||
+				m01 == 0 || m11 == 0 || m21 == 0 ||
+				m02 == 0 || m12 == 0 || m22 == 0) {
+			return -1;
+		}
+		
+		// must be a tie
+        return 0;
 	}
 }

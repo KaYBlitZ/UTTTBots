@@ -26,17 +26,10 @@ package com.kayblitz.uttt;
  */
 
 public class Move {
-	int mX, mY;
-	
-	public Move() {
-	}
+	public int column, row;
 	
 	public Move(int x, int y) {
-		mX = x;
-		mY = y;
+		column = x;
+		row = y;
 	}
-	
-	public int getX() { return mX; }
-	public int getY() { return mY; }
-	
 }

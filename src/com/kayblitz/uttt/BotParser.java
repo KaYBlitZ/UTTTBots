@@ -30,37 +30,38 @@ import java.util.Scanner;
 
 public class BotParser {
 
-	final Scanner scan;
-	final BotStarter bot;
+	private final Scanner scanner;
+	private final Bot bot;
 
-	private Field mField;
-	public static int mBotId = 0;
+	private Field field;
+	private int botId;
 
-	public BotParser(BotStarter bot) {
-		this.scan = new Scanner(System.in);
+	public BotParser(Bot bot) {
+		this.scanner = new Scanner(System.in);
 		this.bot = bot;
 	}
 
 	public void run() {
-		mField = new Field();
-		while(scan.hasNextLine()) {
-			String line = scan.nextLine();
+		field = new Field();
+		while(scanner.hasNextLine()) {
+			String line = scanner.nextLine();
 
 			if(line.length() == 0) {
 				continue;
 			}
-
+			
 			String[] parts = line.split(" ");
 			if(parts[0].equals("settings")) {
 				if (parts[1].equals("your_botid")) {
-					mBotId = Integer.parseInt(parts[2]);
+					botId = Integer.parseInt(parts[2]);
 				}
 			} else if(parts[0].equals("update") && parts[1].equals("game")) { /* new game data */
-			    mField.parseGameData(parts[2], parts[3]);
+			    field.parseGameData(parts[2], parts[3]);
 			} else if(parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
-					Move move = this.bot.makeTurn(mField);
-					System.out.println("place_move " + move.getX() + " " + move.getY());
+					int timebank = Integer.parseInt(parts[2]);
+					Move move = bot.makeMove(field, timebank, botId);
+					System.out.println("place_move " + move.column + " " + move.row);
 				}
 			} else { 
 				System.out.println("unknown command: " + line);

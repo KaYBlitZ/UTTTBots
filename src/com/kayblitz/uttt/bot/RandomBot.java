@@ -15,9 +15,14 @@
 //    For the full copyright and license information, please view the LICENSE
 //    file that was distributed with this source code.
 
-package com.kayblitz.uttt;
+package com.kayblitz.uttt.bot;
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.kayblitz.uttt.Bot;
+import com.kayblitz.uttt.BotParser;
+import com.kayblitz.uttt.Field;
+import com.kayblitz.uttt.Move;
 
 /**
  * BotStarter class
@@ -28,7 +33,7 @@ import java.util.Random;
  * @author Jim van Eeden <jim@starapple.nl>
  */
 
-public class BotStarter {
+public class RandomBot extends Bot {
 
     /**
      * Makes a turn. Edit this method to make your bot smarter.
@@ -36,7 +41,8 @@ public class BotStarter {
      *
      * @return The column where the turn was made.
      */
-	public Move makeTurn(Field field) {
+	@Override
+	public Move makeMove(Field field, int timebank, int botId) {
 		Random r = new Random();
 		ArrayList<Move> moves = field.getAvailableMoves();
 		Move move = moves.get(r.nextInt(moves.size())); /* get random move from available moves */
@@ -46,7 +52,7 @@ public class BotStarter {
 
 
 	public static void main(String[] args) {
-		BotParser parser = new BotParser(new BotStarter());
+		BotParser parser = new BotParser(new RandomBot());
 		parser.run();
 	}
 }
