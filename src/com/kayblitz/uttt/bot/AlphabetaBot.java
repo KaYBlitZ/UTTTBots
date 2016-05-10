@@ -25,7 +25,7 @@ public class AlphabetaBot extends Bot {
 		opponentId = (botId == 1 ? 2 : 1);
 		
 		System.err.println("Timebank: " + timebank);
-		Random rand = new Random();
+		Random rand = new Random(System.currentTimeMillis());
 		int bestHeuristic = Integer.MIN_VALUE;
 		Move bestMove = null;
 		
