@@ -11,13 +11,27 @@ import com.kayblitz.uttt.Move;
 public class AlphabetaBot extends Bot {
 
 	public static void main(String[] args) {
-		new BotParser(new AlphabetaBot()).run();
+		if (args.length < 1) {
+			System.err.println("Alphabeta depth must be given");
+			return;
+		}
+		int depth = -1;
+		try {
+			depth = Integer.parseInt(args[0]);
+		} catch (NumberFormatException e) {
+			System.err.println("Invalid depth");
+			return;
+		}
+		new BotParser(new AlphabetaBot(depth)).run();
 	}
 	
-	private static final int DEPTH = 7;
 	private static final int WIN = 999;
 	private static final int TIE = 0;
-	private int botId, opponentId;
+	private int botId, opponentId, depth;
+	
+	public AlphabetaBot(int depth) {
+		this.depth = depth;
+	}
 
 	@Override
 	public Move makeMove(Field field, int timebank, int botId) {
@@ -34,7 +48,7 @@ public class AlphabetaBot extends Bot {
 		StringBuffer sb = new StringBuffer();
 		for (Move move : moves) {
 			field.makeMove(move, botId);
-			int heuristic = alphabeta(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, DEPTH - 1);
+			int heuristic = alphabeta(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, depth - 1);
 			field.undo();
 			if (heuristic > bestHeuristic) {
 				bestHeuristic = heuristic;
