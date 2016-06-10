@@ -60,7 +60,7 @@ public class BotParser {
 			} else if(parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
 					int timebank = Integer.parseInt(parts[2]);
-					Move move = bot.makeMove(field, timebank, botId);
+					Move move = bot.makeMove(field, timebank, botId, field.getMoveNum());
 					System.out.println("place_move " + move.column + " " + move.row);
 				}
 			} else { 

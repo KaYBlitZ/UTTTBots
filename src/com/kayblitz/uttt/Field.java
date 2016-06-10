@@ -188,6 +188,10 @@ public class Field {
 	public int getNrRows() {
 		return ROWS;
 	}
+	
+	public int getMoveNum() {
+		return mMoveNr;
+	}
 
 	public boolean isEmpty() {
 		for (int x = 0; x < COLS; x++) {

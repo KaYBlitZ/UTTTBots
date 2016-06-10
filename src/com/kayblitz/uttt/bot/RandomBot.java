@@ -42,7 +42,7 @@ public class RandomBot extends Bot {
      * @return The column where the turn was made.
      */
 	@Override
-	public Move makeMove(Field field, int timebank, int botId) {
+	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
 		Random r = new Random();
 		ArrayList<Move> moves = field.getAvailableMoves();
 		Move move = moves.get(r.nextInt(moves.size())); /* get random move from available moves */

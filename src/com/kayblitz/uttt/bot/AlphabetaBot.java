@@ -34,7 +34,7 @@ public class AlphabetaBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int botId) {
+	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
 		this.botId = botId;
 		opponentId = (botId == 1 ? 2 : 1);
 		
@@ -72,7 +72,7 @@ public class AlphabetaBot extends Bot {
 		int winner = field.getWinner();
 		if (winner == 0) return TIE;
 		if (winner > 0) return (maximizingPlayer == botId ? -WIN : WIN);
-		if (depth == 0) return evaluateField(field);
+		if (depth == 0) return Evaluation.evaluateFieldSimple(field, botId, opponentId);
 		
 		ArrayList<Move> moves = field.getAvailableMoves();
 		if (maximizingPlayer == botId) {
@@ -93,22 +93,5 @@ public class AlphabetaBot extends Bot {
 			}
 		}
 		return maximizingPlayer == botId ? alpha : beta;
-	}
-	
-	public int evaluateField(Field field) {
-		int heuristic = 0;
-		
-		int[][] macroBoard = field.getMacroboard();
-		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 3; col++) {
-				if (macroBoard[col][row] == botId) {
-					heuristic++;
-				} else if (macroBoard[col][row] == opponentId) {
-					heuristic--;
-				}
-			}
-		}
-		
-		return heuristic;
 	}
 }
