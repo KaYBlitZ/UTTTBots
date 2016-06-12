@@ -34,6 +34,12 @@ import com.kayblitz.uttt.Move;
  */
 
 public class RandomBot extends Bot {
+	
+	private Random random;
+	
+	public RandomBot() {
+		random = new Random(System.currentTimeMillis());
+	}
 
     /**
      * Makes a turn. Edit this method to make your bot smarter.
@@ -43,9 +49,8 @@ public class RandomBot extends Bot {
      */
 	@Override
 	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
-		Random r = new Random();
 		ArrayList<Move> moves = field.getAvailableMoves();
-		Move move = moves.get(r.nextInt(moves.size())); /* get random move from available moves */
+		Move move = moves.get(random.nextInt(moves.size())); /* get random move from available moves */
 		
 		return move;
 	}
