@@ -8,29 +8,32 @@ import com.kayblitz.uttt.BotParser;
 import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
-public class AlphabetaBot extends Bot {
+public class MinimaxBot extends Bot {
 
 	public static void main(String[] args) {
-		if (args.length < 1) {
-			System.err.println("Alphabeta depth must be given");
+		if (args.length < 2) {
+			System.err.println("Depth and evaluation type must be given");
 			return;
 		}
 		int depth = -1;
+		int type = -1;
 		try {
 			depth = Integer.parseInt(args[0]);
+			type = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
-			System.err.println("Invalid depth");
+			System.err.println("Invalid depth or evaluation type");
 			return;
 		}
-		new BotParser(new AlphabetaBot(depth)).run();
+		new BotParser(new MinimaxBot(depth, type)).run();
 	}
 	
 	private static final int WIN = 999;
 	private static final int TIE = 0;
-	private int botId, opponentId, depth;
+	private int botId, opponentId, depth, type;
 	
-	public AlphabetaBot(int depth) {
+	public MinimaxBot(int depth, int type) {
 		this.depth = depth;
+		this.type = type;
 	}
 
 	@Override
@@ -72,7 +75,14 @@ public class AlphabetaBot extends Bot {
 		int winner = field.getWinner();
 		if (winner == 0) return TIE;
 		if (winner > 0) return (maximizingPlayer == botId ? -WIN : WIN);
-		if (depth == 0) return Evaluation.evaluateFieldSimple(field, botId, opponentId);
+		if (depth == 0) {
+			switch (type) {
+			case 0:
+				return Evaluation.evaluateFieldSimple(field, botId, opponentId);
+			case 1:
+				return Evaluation.evaluateFieldConnecting(field, botId, opponentId);
+			}
+		}
 		
 		ArrayList<Move> moves = field.getAvailableMoves();
 		if (maximizingPlayer == botId) {

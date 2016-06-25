@@ -109,7 +109,7 @@ public class Field {
 		
 		for (int y = 0; y < ROWS; y++) {
             for (int x = 0; x < COLS; x++) {
-                if (isInActiveMicroboard(x, y) && mBoard[x][y] == 0) {
+                if (isInActiveMacroboard(x, y) && mBoard[x][y] == 0) {
                     moves.add(new Move(x, y));
                 }
             }
@@ -118,7 +118,7 @@ public class Field {
 		return moves;
 	}
 	
-	public boolean isInActiveMicroboard(int x, int y) {
+	public boolean isInActiveMacroboard(int x, int y) {
 	    return mMacroboard[x/3][y/3] == -1;
 	}
 	
@@ -310,6 +310,10 @@ public class Field {
 	
 	public int[][] getMacroboard() {
 		return mMacroboard;
+	}
+	
+	public int[][] getBoard() {
+		return mBoard;
 	}
 	
 	private int getMiniWinner(int topLeftColumn, int topLeftRow) {
