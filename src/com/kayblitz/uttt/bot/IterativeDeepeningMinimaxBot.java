@@ -51,8 +51,9 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		// this function acts as the bot's first maximizing node
 		ArrayList<Move> moves = field.getAvailableMoves();
 		
-		if (moveNum < 20) {
-			// heuristics mostly return zeroes, dont waste timebank
+		if ((type == Evaluation.SIMPLE && moveNum < 20) || 
+				(type == Evaluation.CONNECTING && moveNum < 15)) {
+			// heuristics mostly the same (insignificant), dont waste timebank
 			limit = 500L;
 		} else {
 			int size = moves.size();

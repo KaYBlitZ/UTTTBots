@@ -10,6 +10,9 @@ import com.kayblitz.uttt.Field;
  */
 public class Evaluation {
 	
+	public static final int SIMPLE = 0;
+	public static final int CONNECTING = 1;
+	
 	/**
 	 * A more positive value indicates that the bot has won more macro fields
 	 * @param field
