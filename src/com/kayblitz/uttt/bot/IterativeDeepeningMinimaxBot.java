@@ -124,10 +124,14 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		if (winner > 0) return (maximizingPlayer == botId ? -WIN : WIN);
 		if (depth == 0) {
 			switch (type) {
-			case 0:
+			case Evaluation.SIMPLE:
 				return Evaluation.evaluateFieldSimple(field, botId, opponentId);
-			case 1:
+			case Evaluation.CONNECTING:
 				return Evaluation.evaluateFieldConnecting(field, botId, opponentId);
+			case Evaluation.ADVANCED:
+				return Evaluation.evaluateFieldAdvanced(field, botId, opponentId);
+			default:
+				throw new RuntimeException("Invalid heuristic evaluation function");
 			}
 		}
 		
