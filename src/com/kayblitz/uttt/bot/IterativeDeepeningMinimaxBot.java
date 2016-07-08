@@ -52,7 +52,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		ArrayList<Move> moves = field.getAvailableMoves();
 		
 		if ((type == Evaluation.SIMPLE && moveNum < 20) || 
-				(type == Evaluation.CONNECTING && moveNum < 15)) {
+				((type == Evaluation.CONNECTING || type == Evaluation.ADVANCED) && moveNum < 15)) {
 			// heuristics mostly the same (insignificant), dont waste timebank
 			limit = 500L;
 		} else {
