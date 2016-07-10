@@ -2,24 +2,15 @@ package com.kayblitz.uttt.bot;
 
 import com.kayblitz.uttt.Field;
 
-/**
- * Simple evaluation = 0
- * Connecting evaluation = 1
- * @author Kenneth
- *
- */
 public class Evaluation {
 	
 	public static final int SIMPLE = 0;
 	public static final int CONNECTING = 1;
 	public static final int ADVANCED = 2;
+	public static final int ADVANCED_OPTIMIZED = 3;
 	
 	/**
 	 * A more positive value indicates that the bot has won more macro fields
-	 * @param field
-	 * @param botId
-	 * @param opponentId
-	 * @return heuristic value
 	 */
 	public static int evaluateFieldSimple(Field field, int botId, int opponentId) {
 		int heuristic = 0;
@@ -38,10 +29,6 @@ public class Evaluation {
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.
-	 * @param field
-	 * @param botId
-	 * @param opponentId
-	 * @return heuristic value
 	 */
 	public static int evaluateFieldConnecting(Field field, int botId, int opponentId) {
 		int heuristic = 0;
@@ -159,13 +146,6 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	/**
-	 * 
-	 * @param field - the field
-	 * @param board - an array to store markers
-	 * @param miniIndex - index of mini field to evaluate
-	 * @return
-	 */
 	private static final int evaluateMiniFieldConnecting(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
 		int heuristic = 0;
 		int botConnected, opponentConnected;
@@ -284,13 +264,13 @@ public class Evaluation {
 	private static final int MIDDLE = 30;
 	private static final int CORNER = 20;
 	private static final int SIDE = 10;
+	private static final int MINI_TWO_IN_A_ROW = 5;
+	private static final int MINI_MIDDLE = 3;
+	private static final int MINI_CORNER = 2;
+	private static final int MINI_SIDE = 1;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.
-	 * @param field
-	 * @param botId
-	 * @param opponentId
-	 * @return heuristic value
 	 */
 	public static int evaluateFieldAdvanced(Field field, int botId, int opponentId) {
 		int heuristic = 0;
@@ -444,23 +424,11 @@ public class Evaluation {
 		// check 2 in a row in mini fields
 		int[][] board = new int[3][3];
 		for (int i = 0; i < 9; i++) {
-			heuristic += evaluateMiniFieldConnecting(field, board, i, botId, opponentId);
+			heuristic += evaluateMiniFieldAdvanced(field, board, i, botId, opponentId);
 		}
 		return heuristic;
 	}
 	
-	private static final int MINI_TWO_IN_A_ROW = 5;
-	private static final int MINI_MIDDLE = 3;
-	private static final int MINI_CORNER = 2;
-	private static final int MINI_SIDE = 1;
-	
-	/**
-	 * 
-	 * @param field - the field
-	 * @param board - an array to store markers
-	 * @param miniIndex - index of mini field to evaluate
-	 * @return
-	 */
 	private static final int evaluateMiniFieldAdvanced(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
 		int heuristic = 0;
 		int botConnected, opponentConnected;
@@ -620,6 +588,338 @@ public class Evaluation {
 			heuristic += MINI_TWO_IN_A_ROW;
 		} else if (opponentConnected > 1 && botConnected == 0) {
 			heuristic -= MINI_TWO_IN_A_ROW;
+		}
+		return heuristic;
+	}
+	
+	public static final int TWO_IN_A_ROW_OPTIMIZED = 50;
+	public static final int MIDDLE_OPTIMIZED = 30;
+	public static final int CORNER_OPTIMIZED = 20;
+	public static final int SIDE_OPTIMIZED = 10;
+	public static final int MINI_TWO_IN_A_ROW_OPTIMIZED = 5;
+	public static final int MINI_MIDDLE_OPTIMIZED = 3;
+	public static final int MINI_CORNER_OPTIMIZED = 2;
+	public static final int MINI_SIDE_OPTIMIZED = 1;
+	
+	/**
+	 * Same as simple, but also gives more points for having two in-a-row markers.
+	 */
+	public static int evaluateFieldAdvancedOptimized(Field field, int botId, int opponentId) {
+		int heuristic = 0;
+		int botConnected, opponentConnected;
+		int[][] macroBoard = field.getMacroboard();
+		// check board positions
+		// middle
+		if (macroBoard[1][1] == botId) {
+			heuristic += MIDDLE_OPTIMIZED;
+		} else if (macroBoard[1][1] == opponentId) {
+			heuristic -= MIDDLE_OPTIMIZED;
+		}
+		// corners
+		if (macroBoard[0][0] == botId) {
+			heuristic += CORNER_OPTIMIZED;
+		} else if (macroBoard[0][0] == opponentId) {
+			heuristic -= CORNER_OPTIMIZED;
+		}
+		if (macroBoard[2][0] == botId) {
+			heuristic += CORNER_OPTIMIZED;
+		} else if (macroBoard[2][0] == opponentId) {
+			heuristic -= CORNER_OPTIMIZED;
+		}
+		if (macroBoard[0][2] == botId) {
+			heuristic += CORNER_OPTIMIZED;
+		} else if (macroBoard[0][2] == opponentId) {
+			heuristic -= CORNER_OPTIMIZED;
+		}
+		if (macroBoard[2][2] == botId) {
+			heuristic += CORNER_OPTIMIZED;
+		} else if (macroBoard[2][2] == opponentId) {
+			heuristic -= CORNER_OPTIMIZED;
+		}
+		// sides
+		if (macroBoard[1][0] == botId) {
+			heuristic += SIDE_OPTIMIZED;
+		} else if (macroBoard[1][0] == opponentId) {
+			heuristic -= SIDE_OPTIMIZED;
+		}
+		if (macroBoard[0][1] == botId) {
+			heuristic += SIDE_OPTIMIZED;
+		} else if (macroBoard[0][1] == opponentId) {
+			heuristic -= SIDE_OPTIMIZED;
+		}
+		if (macroBoard[2][1] == botId) {
+			heuristic += SIDE_OPTIMIZED;
+		} else if (macroBoard[2][1] == opponentId) {
+			heuristic -= SIDE_OPTIMIZED;
+		}
+		if (macroBoard[1][2] == botId) {
+			heuristic += SIDE_OPTIMIZED;
+		} else if (macroBoard[1][2] == opponentId) {
+			heuristic -= SIDE_OPTIMIZED;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (macroBoard[0][row] == botId) {
+				botConnected++;
+			} else if (macroBoard[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroBoard[1][row] == botId) {
+				botConnected++;
+			} else if (macroBoard[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroBoard[2][row] == botId) {
+				botConnected++;
+			} else if (macroBoard[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += TWO_IN_A_ROW_OPTIMIZED;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= TWO_IN_A_ROW_OPTIMIZED;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (macroBoard[col][0] == botId) {
+				botConnected++;
+			} else if (macroBoard[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroBoard[col][1] == botId) {
+				botConnected++;
+			} else if (macroBoard[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroBoard[col][2] == botId) {
+				botConnected++;
+			} else if (macroBoard[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += TWO_IN_A_ROW_OPTIMIZED;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= TWO_IN_A_ROW_OPTIMIZED;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (macroBoard[0][2] == botId) {
+			botConnected++;
+		} else if (macroBoard[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroBoard[1][1] == botId) {
+			botConnected++;
+		} else if (macroBoard[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroBoard[2][0] == botId) {
+			botConnected++;
+		} else if (macroBoard[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += TWO_IN_A_ROW_OPTIMIZED;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= TWO_IN_A_ROW_OPTIMIZED;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (macroBoard[0][0] == botId) {
+			botConnected++;
+		} else if (macroBoard[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroBoard[1][1] == botId) {
+			botConnected++;
+		} else if (macroBoard[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroBoard[2][2] == botId) {
+			botConnected++;
+		} else if (macroBoard[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += TWO_IN_A_ROW_OPTIMIZED;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= TWO_IN_A_ROW_OPTIMIZED;
+		}
+		// check 2 in a row in mini fields
+		int[][] board = new int[3][3];
+		for (int i = 0; i < 9; i++) {
+			heuristic += evaluateMiniFieldAdvancedOptimized(field, board, i, botId, opponentId);
+		}
+		return heuristic;
+	}
+	
+	private static final int evaluateMiniFieldAdvancedOptimized(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
+		int heuristic = 0;
+		int botConnected, opponentConnected;
+		int topLeftColumn = (miniIndex % 3) * 3;
+		int topLeftRow = (miniIndex / 3) * 3;
+		int[][] mBoard = field.getBoard();
+		board[0][0] = mBoard[topLeftColumn][topLeftRow];
+		board[1][0] = mBoard[topLeftColumn + 1][topLeftRow];
+		board[2][0] = mBoard[topLeftColumn + 2][topLeftRow];
+		board[0][1] = mBoard[topLeftColumn][topLeftRow + 1];
+		board[1][1] = mBoard[topLeftColumn + 1][topLeftRow + 1];
+		board[2][1] = mBoard[topLeftColumn + 2][topLeftRow + 1];
+		board[0][2] = mBoard[topLeftColumn][topLeftRow + 2];
+		board[1][2] = mBoard[topLeftColumn + 1][topLeftRow + 2];
+		board[2][2] = mBoard[topLeftColumn + 2][topLeftRow + 2];
+		// check board positions
+		// middle
+		if (board[1][1] == botId) {
+			heuristic += MINI_MIDDLE_OPTIMIZED;
+		} else if (board[1][1] == opponentId) {
+			heuristic -= MINI_MIDDLE_OPTIMIZED;
+		}
+		// corners
+		if (board[0][0] == botId) {
+			heuristic += MINI_CORNER_OPTIMIZED;
+		} else if (board[0][0] == opponentId) {
+			heuristic -= MINI_CORNER_OPTIMIZED;
+		}
+		if (board[2][0] == botId) {
+			heuristic += MINI_CORNER_OPTIMIZED;
+		} else if (board[2][0] == opponentId) {
+			heuristic -= MINI_CORNER_OPTIMIZED;
+		}
+		if (board[0][2] == botId) {
+			heuristic += MINI_CORNER_OPTIMIZED;
+		} else if (board[0][2] == opponentId) {
+			heuristic -= MINI_CORNER_OPTIMIZED;
+		}
+		if (board[2][2] == botId) {
+			heuristic += MINI_CORNER_OPTIMIZED;
+		} else if (board[2][2] == opponentId) {
+			heuristic -= MINI_CORNER_OPTIMIZED;
+		}
+		// sides
+		if (board[1][0] == botId) {
+			heuristic += MINI_SIDE_OPTIMIZED;
+		} else if (board[1][0] == opponentId) {
+			heuristic -= MINI_SIDE_OPTIMIZED;
+		}
+		if (board[0][1] == botId) {
+			heuristic += MINI_SIDE_OPTIMIZED;
+		} else if (board[0][1] == opponentId) {
+			heuristic -= MINI_SIDE_OPTIMIZED;
+		}
+		if (board[2][1] == botId) {
+			heuristic += MINI_SIDE_OPTIMIZED;
+		} else if (board[2][1] == opponentId) {
+			heuristic -= MINI_SIDE_OPTIMIZED;
+		}
+		if (board[1][2] == botId) {
+			heuristic += MINI_SIDE_OPTIMIZED;
+		} else if (board[1][2] == opponentId) {
+			heuristic -= MINI_SIDE_OPTIMIZED;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (board[0][row] == botId) {
+				botConnected++;
+			} else if (board[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (board[1][row] == botId) {
+				botConnected++;
+			} else if (board[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (board[2][row] == botId) {
+				botConnected++;
+			} else if (board[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MINI_TWO_IN_A_ROW_OPTIMIZED;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MINI_TWO_IN_A_ROW_OPTIMIZED;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (board[col][0] == botId) {
+				botConnected++;
+			} else if (board[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (board[col][1] == botId) {
+				botConnected++;
+			} else if (board[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (board[col][2] == botId) {
+				botConnected++;
+			} else if (board[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MINI_TWO_IN_A_ROW_OPTIMIZED;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MINI_TWO_IN_A_ROW_OPTIMIZED;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (board[0][2] == botId) {
+			botConnected++;
+		} else if (board[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (board[1][1] == botId) {
+			botConnected++;
+		} else if (board[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (board[2][0] == botId) {
+			botConnected++;
+		} else if (board[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MINI_TWO_IN_A_ROW_OPTIMIZED;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MINI_TWO_IN_A_ROW_OPTIMIZED;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (board[0][0] == botId) {
+			botConnected++;
+		} else if (board[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (board[1][1] == botId) {
+			botConnected++;
+		} else if (board[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (board[2][2] == botId) {
+			botConnected++;
+		} else if (board[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MINI_TWO_IN_A_ROW_OPTIMIZED;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MINI_TWO_IN_A_ROW_OPTIMIZED;
 		}
 		return heuristic;
 	}
