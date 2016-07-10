@@ -26,8 +26,6 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 	}
 	
 	private static final int MAX_DEPTH = 15;
-	private static final int WIN = 999;
-	private static final int TIE = 0;
 	private int botId, opponentId, type;
 	private long startTime, limit;
 	private boolean timedOut;
@@ -120,8 +118,8 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		// the previous move maker won, so if the current maximizingPlayer is us
 		// then our opponent made the winning move, so we lost
 		int winner = field.getWinner();
-		if (winner == 0) return TIE;
-		if (winner > 0) return (maximizingPlayer == botId ? -WIN : WIN);
+		if (winner == 0) return Evaluation.TIE;
+		if (winner > 0) return (maximizingPlayer == botId ? -Evaluation.WIN : Evaluation.WIN);
 		if (depth == 0) {
 			switch (type) {
 			case Evaluation.SIMPLE:

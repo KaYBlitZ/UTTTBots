@@ -27,8 +27,6 @@ public class MinimaxBot extends Bot {
 		new BotParser(new MinimaxBot(depth, type)).run();
 	}
 	
-	private static final int WIN = 999;
-	private static final int TIE = 0;
 	private int botId, opponentId, depth, type;
 	
 	public MinimaxBot(int depth, int type) {
@@ -73,8 +71,8 @@ public class MinimaxBot extends Bot {
 		// the previous move maker won, so if the current maximizingPlayer is us
 		// then our opponent made the winning move, so we lost
 		int winner = field.getWinner();
-		if (winner == 0) return TIE;
-		if (winner > 0) return (maximizingPlayer == botId ? -WIN : WIN);
+		if (winner == 0) return Evaluation.TIE;
+		if (winner > 0) return (maximizingPlayer == botId ? -Evaluation.WIN : Evaluation.WIN);
 		if (depth == 0) {
 			switch (type) {
 			case Evaluation.SIMPLE:

@@ -9,6 +9,9 @@ public class Evaluation {
 	public static final int ADVANCED = 2;
 	public static final int ADVANCED_OPTIMIZED = 3;
 	
+	public static final int WIN = 999;
+	public static final int TIE = 0;
+	
 	/**
 	 * A more positive value indicates that the bot has won more macro fields
 	 */

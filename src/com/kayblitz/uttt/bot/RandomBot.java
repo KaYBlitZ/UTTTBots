@@ -51,7 +51,6 @@ public class RandomBot extends Bot {
 	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
 		ArrayList<Move> moves = field.getAvailableMoves();
 		Move move = moves.get(random.nextInt(moves.size())); /* get random move from available moves */
-		
 		return move;
 	}
 
