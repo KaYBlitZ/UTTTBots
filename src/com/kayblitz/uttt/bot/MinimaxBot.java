@@ -74,6 +74,24 @@ public class MinimaxBot extends Bot {
 					field.undo();
 				}
 			}
+		} else if (bestHeuristic == -Evaluation.WIN) { // going to lose, delay it
+			for (Move move : moves) {
+				field.makeMove(move, botId);
+				ArrayList<Move> opponentMoves = field.getAvailableMoves();
+				boolean opponentWins = false;
+				for (Move opponentMove : opponentMoves) {
+					field.makeMove(opponentMove, opponentId);
+					if (field.getWinner() > 0) {
+						field.undo();
+						opponentWins = true;
+						break;
+					} else {
+						field.undo();
+					}
+				}
+				field.undo();
+				if (!opponentWins) return move;
+			}
 		}
 		
 		return bestMove;
@@ -93,6 +111,8 @@ public class MinimaxBot extends Bot {
 				return Evaluation.evaluateFieldConnecting(field, botId, opponentId);
 			case Evaluation.ADVANCED:
 				return Evaluation.evaluateFieldAdvanced(field, botId, opponentId);
+			case Evaluation.ADVANCED_OPTIMIZED:
+				return Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
 			default:
 				throw new RuntimeException("Invalid heuristic evaluation function");
 			}
