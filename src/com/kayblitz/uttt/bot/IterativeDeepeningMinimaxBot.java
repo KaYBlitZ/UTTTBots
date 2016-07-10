@@ -68,6 +68,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		}
 		
 		// best values from a completely finished depth
+		int bestHeuristic = Integer.MIN_VALUE;
 		Move bestMove = null;
 		// tentative values from the current depth exploration
 		int tentativeBestHeuristic = Integer.MIN_VALUE;
@@ -101,11 +102,24 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 				sb.append("Timed out\n");
 				sb.append("Max depth " + (depth - 1));
 			} else {
-				// not timed out, so results are valid, update new best move
+				// not timed out, so results are valid, update new bests
 				bestMove = tentativeBestMove;
+				bestHeuristic = tentativeBestHeuristic;
 			}
 		}
 		System.err.println(sb.toString());
+		
+		if (bestHeuristic == Evaluation.WIN) { // check to see if we can end the game now
+			for (Move move : moves) {
+				field.makeMove(move, botId);
+				if (field.getWinner() > 0) {
+					field.undo();
+					return move; // win the game
+				} else {
+					field.undo();
+				}
+			}
+		}
 		
 		return bestMove;
 	}

@@ -64,6 +64,18 @@ public class MinimaxBot extends Bot {
 		}
 		System.err.println(sb.toString());
 		
+		if (bestHeuristic == Evaluation.WIN) { // check to see if we can end the game now
+			for (Move move : moves) {
+				field.makeMove(move, botId);
+				if (field.getWinner() > 0) {
+					field.undo();
+					return move; // win the game
+				} else {
+					field.undo();
+				}
+			}
+		}
+		
 		return bestMove;
 	}
 	
