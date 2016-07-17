@@ -26,7 +26,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 	}
 	
 	private static final int MAX_DEPTH = 15;
-	private int botId, opponentId, type;
+	private int type;
 	private long startTime, limit;
 	private boolean timedOut;
 	
@@ -39,13 +39,9 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
-		this.botId = botId;
-		opponentId = (botId == 1 ? 2 : 1);
+	public Move makeMove(Field field, int timebank, int moveNum) {
 		startTime = System.currentTimeMillis();
-		
 		Random rand = new Random(System.currentTimeMillis());
-		
 		// this function acts as the bot's first maximizing node
 		ArrayList<Move> moves = field.getAvailableMoves();
 		

@@ -32,9 +32,7 @@ public class BotParser {
 
 	private final Scanner scanner;
 	private final Bot bot;
-
 	private Field field;
-	private int botId;
 
 	public BotParser(Bot bot) {
 		this.scanner = new Scanner(System.in);
@@ -45,22 +43,21 @@ public class BotParser {
 		field = new Field();
 		while(scanner.hasNextLine()) {
 			String line = scanner.nextLine();
-
-			if(line.length() == 0) {
-				continue;
-			}
+			if(line.length() == 0) continue;
 			
 			String[] parts = line.split(" ");
 			if(parts[0].equals("settings")) {
 				if (parts[1].equals("your_botid")) {
-					botId = Integer.parseInt(parts[2]);
+					int botId = Integer.parseInt(parts[2]);
+					bot.setBotId(botId);
+					bot.setOpponentId(botId == 1 ? 2 : 1);
 				}
 			} else if(parts[0].equals("update") && parts[1].equals("game")) { /* new game data */
 			    field.parseGameData(parts[2], parts[3]);
 			} else if(parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
 					int timebank = Integer.parseInt(parts[2]);
-					Move move = bot.makeMove(field, timebank, botId, field.getMoveNum());
+					Move move = bot.makeMove(field, timebank, field.getMoveNum());
 					System.out.println("place_move " + move.column + " " + move.row);
 				}
 			} else { 

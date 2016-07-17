@@ -27,7 +27,7 @@ public class MinimaxBot extends Bot {
 		new BotParser(new MinimaxBot(depth, type)).run();
 	}
 	
-	private int botId, opponentId, depth, type;
+	private int depth, type;
 	
 	public MinimaxBot(int depth, int type) {
 		this.depth = depth;
@@ -35,10 +35,7 @@ public class MinimaxBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int botId, int moveNum) {
-		this.botId = botId;
-		opponentId = (botId == 1 ? 2 : 1);
-		
+	public Move makeMove(Field field, int timebank, int moveNum) {		
 		System.err.println("Timebank: " + timebank);
 		Random rand = new Random(System.currentTimeMillis());
 		int bestHeuristic = Integer.MIN_VALUE;
