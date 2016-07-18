@@ -106,15 +106,13 @@ public class Field {
 
 	public ArrayList<Move> getAvailableMoves() {
 	    ArrayList<Move> moves = new ArrayList<Move>();
-		
-		for (int y = 0; y < ROWS; y++) {
-            for (int x = 0; x < COLS; x++) {
+	    for (int x = 0; x < COLS; x++) {
+	    	for (int y = 0; y < ROWS; y++) {
                 if (isInActiveMacroboard(x, y) && mBoard[x][y] == 0) {
                     moves.add(new Move(x, y));
                 }
             }
         }
-
 		return moves;
 	}
 	
@@ -252,19 +250,36 @@ public class Field {
 		return 0;
 	}
 	
-	public boolean makeMove(Move move, int id) {
-		return makeMove(move.column, move.row, id);
+	/**
+	 * Makes the specified move
+	 * @param move
+	 * @param id
+	 * @param addToStack - add to stack to undo later
+	 * @return success
+	 */
+	public boolean makeMove(Move move, int id, boolean addToStack) {
+		return makeMove(move.column, move.row, id, addToStack);
 	}
 	
-	public boolean makeMove(int column, int row, int id) {
-		if (mBoard[column][row] > 0) return false;
+	/**
+	 * Makes the specified move
+	 * @param column
+	 * @param row
+	 * @param id
+	 * @param addToStack - add to stack to undo later
+	 * @return
+	 */
+	public boolean makeMove(int column, int row, int id, boolean addToStack) {
+		if (mBoard[column][row] > 0) throw new RuntimeException("Invalid move: space not empty");
 		
 		mBoard[column][row] = id; // do move
-		moves.add(new Move(column, row)); // save move
-		// save original macro board state
-		MacroState state = new MacroState();
-		state.saveState(mMacroboard);
-		macroStates.add(state);
+		if (addToStack) {
+			moves.add(new Move(column, row)); // save move
+			// save original macro board state
+			MacroState state = new MacroState();
+			state.saveState(mMacroboard);
+			macroStates.add(state);
+		}
 		// update macro board state
 		updateMacro(column, row);
 		return true;

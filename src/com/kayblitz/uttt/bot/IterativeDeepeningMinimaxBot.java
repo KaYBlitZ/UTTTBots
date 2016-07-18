@@ -60,7 +60,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 			} else {
 				limit = 1700L;
 			}
-			if (limit > timebank) limit = (long) (0.75f * timebank);
+			if (limit > timebank) limit = (long) (0.85f * timebank);
 		}
 		
 		// best values from a completely finished depth
@@ -72,15 +72,15 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		
 		timedOut = false;
 		StringBuffer sb = new StringBuffer();
-		sb.append(String.format("Timebank: %d, Limit %d\n", timebank, limit));
+		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
 		
 		for (int depth = 1; !timedOut && depth <= MAX_DEPTH; depth++) {
 			tentativeBestHeuristic = Integer.MIN_VALUE;
 			tentativeBestMove = null;
 			sb.append("Depth " + depth + '\n');
 			for (Move move : moves) {
-				field.makeMove(move, botId);
-				int heuristic = alphabeta(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, depth - 1);
+				field.makeMove(move, botId, true);
+				int heuristic = minimax(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, depth - 1);
 				field.undo();
 				if (timedOut) break;
 				if (heuristic > tentativeBestHeuristic) {
@@ -107,7 +107,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		
 		if (bestHeuristic == Evaluation.WIN) { // check to see if we can end the game now
 			for (Move move : moves) {
-				field.makeMove(move, botId);
+				field.makeMove(move, botId, true);
 				if (field.getWinner() > 0) {
 					field.undo();
 					return move; // win the game
@@ -117,11 +117,11 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 			}
 		} else if (bestHeuristic == -Evaluation.WIN) { // going to lose, delay it
 			for (Move move : moves) {
-				field.makeMove(move, botId);
+				field.makeMove(move, botId, true);
 				ArrayList<Move> opponentMoves = field.getAvailableMoves();
 				boolean opponentWins = false;
 				for (Move opponentMove : opponentMoves) {
-					field.makeMove(opponentMove, opponentId);
+					field.makeMove(opponentMove, opponentId, true);
 					if (field.getWinner() > 0) {
 						field.undo();
 						opponentWins = true;
@@ -138,7 +138,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		return bestMove;
 	}
 	
-	public int alphabeta(Field field, int alpha, int beta, int maximizingPlayer, int depth) {
+	public int minimax(Field field, int alpha, int beta, int maximizingPlayer, int depth) {
 		if (getElapsedTime() > limit) {
 			timedOut = true;
 			return 0;
@@ -166,16 +166,16 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 		ArrayList<Move> moves = field.getAvailableMoves();
 		if (maximizingPlayer == botId) {
 			for (Move move : moves) {
-				field.makeMove(move, maximizingPlayer);
-				int heuristic = alphabeta(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
+				field.makeMove(move, maximizingPlayer, true);
+				int heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
 				field.undo();
 				alpha = Math.max(alpha, heuristic);
 				if (beta <= alpha) return alpha;
 			}
 		} else { // opponent
 			for (Move move : moves) {
-				field.makeMove(move, maximizingPlayer);
-				int heuristic = alphabeta(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
+				field.makeMove(move, maximizingPlayer, true);
+				int heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
 				field.undo();
 				beta = Math.min(beta, heuristic);
 				if (beta <= alpha) return beta;

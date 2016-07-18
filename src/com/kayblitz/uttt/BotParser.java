@@ -61,7 +61,7 @@ public class BotParser {
 					System.out.println("place_move " + move.column + " " + move.row);
 				}
 			} else { 
-				System.out.println("unknown command: " + line);
+				System.out.println("Unknown command: " + line);
 			}
 		}
 	}
