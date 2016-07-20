@@ -21,19 +21,20 @@ public class Tree {
 		this.botId = botId;
 		this.opponentId = opponentId;
 		rand = new Random(System.currentTimeMillis());
-		root = new Node(-1, -1, botId, false, null);
+		root = new Node(-1, -1, botId, -1, null);
 		root.saveState(field);
 	}
 	
 	/** Goes through one iteration of the MCTS algorithm */
 	public void iterate() {
-		// tree policy: selection and expansion
+		// Tree policy: selection and expansion
 		Node selected = select(field);
-		if (selected.isTerminal) return; // nothing else to do
-		Node expanded = expand(field, selected);
-		// simulation
+		Node expanded = selected.isTerminal() ? selected : expand(field, selected);
+		// Simulation
+		// Even if the node is terminal we still simulate it because every iteration afterwards
+		// will select the same terminal node if we do not simulate, resulting in an infinite loop
 		double result = simulate(field, expanded);
-		// backpropagation
+		// Backpropagation
 		backpropagate(expanded, result);
 	}
 	
@@ -44,7 +45,12 @@ public class Tree {
 	public Node select(Field field) {
 		Node selected = root;
 		while (true) {
-			if (selected.isTerminal) return selected; // check to see if we have reached a finished state
+			// If the next bot's move has a chance to win game, select that move since that bot WILL
+			// ALWAYS choose that winning moving instead of selecting any other move
+			for (Node child : selected.children) {
+				if (child.winner == selected.nextMoveBotId) return child;
+			}
+			if (selected.isTerminal()) return selected; // check to see if we have reached a finished state
 			
 			selected.restoreState(field);
 			ArrayList<Move> moves = field.getAvailableMoves();
@@ -77,7 +83,7 @@ public class Tree {
 	 * be that of the newly created child. The passed in node must not be terminal.
 	 */
 	public Node expand(Field field, Node selected) {
-		if (selected.isTerminal) throw new RuntimeException("MCTS expand: node is terminal");
+		if (selected.isTerminal()) throw new RuntimeException("MCTS expand: node is terminal");
 		selected.restoreState(field); // restore state of node
 		ArrayList<Move> moves = field.getAvailableMoves();
 		
@@ -99,7 +105,7 @@ public class Tree {
 			if (++index == moves.size()) index = 0; // wrap to beginning
 		}
 		field.makeMove(action, selected.nextMoveBotId, false); 
-		Node child = new Node(action, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner() >= 0, selected);
+		Node child = new Node(action, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner(), selected);
 		child.saveState(field);
 		selected.children.add(child); // add to parent's array of children
 		
@@ -113,6 +119,8 @@ public class Tree {
 		switch (type) {
 		case Simulation.RANDOM:
 			return Simulation.simulateRandom(field, expanded, botId, opponentId);
+		case Simulation.WIN_FIRST_RANDOM:
+			return Simulation.simulateWinFirstRandom(field, expanded, botId, opponentId);
 		default:
 			throw new RuntimeException("Invalid simulation type");
 		}

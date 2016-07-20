@@ -10,7 +10,7 @@ import com.kayblitz.uttt.Move;
 public class Node {	
 	public Node parent;
 	public ArrayList<Node> children;
-	public boolean isTerminal; // terminal state (finished) or not
+	public int winner; // -1 if not terminal, 0 if tie, else bot id of winner
 	public int nextMoveBotId; // the id of the bot to make the next move from this state
 	public Move a; // incoming action, move leading to this state
 	public int n; // num of visits
@@ -19,16 +19,16 @@ public class Node {
 	private FieldState fieldState;
 	private MacroState macroState;
 	
-	public Node(Move move, int nextMoveBotId, boolean isTerminal, Node parent) {
-		this(move.column, move.row, nextMoveBotId, isTerminal, parent);
+	public Node(Move move, int nextMoveBotId, int winner, Node parent) {
+		this(move.column, move.row, nextMoveBotId, winner, parent);
 	}
-	public Node(int x, int y, int nextMoveBotId, boolean isTerminal, Node parent) {
+	public Node(int x, int y, int nextMoveBotId, int winner, Node parent) {
+		a = new Move(x, y);
 		this.nextMoveBotId = nextMoveBotId;
-		this.isTerminal = isTerminal;
+		this.winner = winner;
 		this.parent = parent;
 		fieldState = new FieldState();
 		macroState = new MacroState();
-		a = new Move(x, y);
 		children = new ArrayList<Node>(9);
 	}
 	
@@ -59,5 +59,9 @@ public class Node {
 	/** Returns the ratio reward/visits */
 	public double getAverageReward() {
 		return q / n;
+	}
+	
+	public boolean isTerminal() {
+		return winner > -1;
 	}
 }
