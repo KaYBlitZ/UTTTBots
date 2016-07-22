@@ -41,6 +41,7 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 	@Override
 	public Move makeMove(Field field, int timebank, int moveNum) {
 		startTime = System.currentTimeMillis();
+		if (moveNum == 1) return new Move(4, 4); // best first move
 		Random rand = new Random(System.currentTimeMillis());
 		// this function acts as the bot's first maximizing node
 		ArrayList<Move> moves = field.getAvailableMoves();

@@ -36,6 +36,7 @@ public class MCTSBot extends Bot {
 	@Override
 	public Move makeMove(Field field, int timebank, int moveNum) {
 		startTime = System.currentTimeMillis();
+		if (moveNum == 1) return new Move(4, 4); // best first move
 		if (moveNum < 15) {
 			// heuristics mostly the same (insignificant), dont waste timebank
 			limit = 500L;
