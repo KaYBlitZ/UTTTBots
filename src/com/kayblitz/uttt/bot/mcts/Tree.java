@@ -45,16 +45,18 @@ public class Tree {
 	public Node select(Field field) {
 		Node selected = root;
 		while (true) {
-			// If the next bot's move has a chance to win game, select that move since that bot WILL
-			// ALWAYS choose that winning moving instead of selecting any other move
-			for (Node child : selected.children) {
-				if (child.winner == selected.nextMoveBotId) return child;
-			}
-			if (selected.isTerminal()) return selected; // check to see if we have reached a finished state
+			if (selected.isTerminal())
+				return selected; // check to see if we have reached a finished state
 			
 			selected.restoreState(field);
 			ArrayList<Move> moves = field.getAvailableMoves();
 			if (selected.children.size() == moves.size()) {
+				// If the next bot's move has a chance to win game, select that move since that bot WILL
+				// ALWAYS choose that winning moving instead of selecting any other move
+				for (Node child : selected.children) {
+					if (child.winner == selected.nextMoveBotId) return child;
+				}
+				
 				// children all explored at least once, explore deeper using UCT
 				Node selectedChild = null;
 				double bestValue = Integer.MIN_VALUE;

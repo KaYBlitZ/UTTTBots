@@ -26,14 +26,14 @@ public class Simulation {
 	public static double simulateRandom(Field field, Node expanded, int botId, int opponentId) {
 		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
-		int winner = expanded.isTerminal() ? field.getWinner() : -1;
+		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
 		while (winner < 0) {
 			ArrayList<Move> moves = field.getAvailableMoves();
 			Move move = moves.get(rand.nextInt(moves.size()));
 			field.makeMove(move, currentId, false);
-			currentId = currentId == 1 ? 2 : 1;
 			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
 		}
 		if (winner == botId) {
 			return WIN;
@@ -50,7 +50,7 @@ public class Simulation {
 	public static double simulateWinFirstRandom(Field field, Node expanded, int botId, int opponentId) {
 		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
-		int winner = expanded.isTerminal() ? field.getWinner() : -1;
+		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
 		while (winner < 0) {
 			ArrayList<Move> moves = field.getAvailableMoves();
@@ -58,18 +58,15 @@ public class Simulation {
 			for (Move move : moves) {
 				field.makeMove(move, currentId, true);
 				winner = field.getWinner();
-				if (winner > 0) {
-					field.undo();
+				field.undo();
+				if (winner > 0)
 					return currentId == botId ? WIN : LOSS;
-				} else {
-					field.undo();
-				}
 			}
 			// no winning move, just play a random move
 			Move move = moves.get(rand.nextInt(moves.size()));
 			field.makeMove(move, currentId, false);
-			currentId = currentId == 1 ? 2 : 1;
 			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
 		}
 		if (winner == botId) {
 			return WIN;
