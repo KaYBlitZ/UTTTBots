@@ -149,7 +149,7 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	private static final int evaluateMiniFieldConnecting(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
+	private static int evaluateMiniFieldConnecting(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
 		int heuristic = 0;
 		int botConnected, opponentConnected;
 		int topLeftColumn = (miniIndex % 3) * 3;
@@ -432,7 +432,7 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	private static final int evaluateMiniFieldAdvanced(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
+	private static int evaluateMiniFieldAdvanced(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
 		int heuristic = 0;
 		int botConnected, opponentConnected;
 		int topLeftColumn = (miniIndex % 3) * 3;
@@ -595,20 +595,20 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	public static final int TWO_IN_A_ROW_OPTIMIZED = 50;
-	public static final int MIDDLE_OPTIMIZED = 30;
-	public static final int CORNER_OPTIMIZED = 20;
-	public static final int SIDE_OPTIMIZED = 10;
-	public static final int MINI_TWO_IN_A_ROW_OPTIMIZED = 5;
-	public static final int MINI_MIDDLE_OPTIMIZED = 3;
-	public static final int MINI_CORNER_OPTIMIZED = 2;
-	public static final int MINI_SIDE_OPTIMIZED = 1;
+	public static final double TWO_IN_A_ROW_OPTIMIZED = 50.0;
+	public static final double MIDDLE_OPTIMIZED = 30.0;
+	public static final double CORNER_OPTIMIZED = 20.0;
+	public static final double SIDE_OPTIMIZED = 10.0;
+	public static final double MINI_TWO_IN_A_ROW_OPTIMIZED = 5.0;
+	public static final double MINI_MIDDLE_OPTIMIZED = 3.0;
+	public static final double MINI_CORNER_OPTIMIZED = 2.0;
+	public static final double MINI_SIDE_OPTIMIZED = 1.0;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.
 	 */
-	public static int evaluateFieldAdvancedOptimized(Field field, int botId, int opponentId) {
-		int heuristic = 0;
+	public static double evaluateFieldAdvancedOptimized(Field field, int botId, int opponentId) {
+		double heuristic = 0;
 		int botConnected, opponentConnected;
 		int[][] macroBoard = field.getMacroboard();
 		// check board positions
@@ -764,8 +764,8 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	private static final int evaluateMiniFieldAdvancedOptimized(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
-		int heuristic = 0;
+	private static double evaluateMiniFieldAdvancedOptimized(Field field, int[][] board, int miniIndex, int botId, int opponentId) {
+		double heuristic = 0;
 		int botConnected, opponentConnected;
 		int topLeftColumn = (miniIndex % 3) * 3;
 		int topLeftRow = (miniIndex / 3) * 3;

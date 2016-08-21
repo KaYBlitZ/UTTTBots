@@ -37,9 +37,10 @@ public class MinimaxBot extends Bot {
 	@Override
 	public Move makeMove(Field field, int timebank, int moveNum) {		
 		System.err.println("Timebank: " + timebank);
-		if (moveNum == 1) return new Move(4, 4); // best first move
+		if (moveNum == 1)
+			return new Move(4, 4); // best first move
 		Random rand = new Random(System.currentTimeMillis());
-		int bestHeuristic = Integer.MIN_VALUE;
+		double bestHeuristic = Integer.MIN_VALUE;
 		Move bestMove = null;
 		
 		// this function acts as the bot's first maximizing node
@@ -47,22 +48,21 @@ public class MinimaxBot extends Bot {
 		StringBuffer sb = new StringBuffer();
 		for (Move move : moves) {
 			field.makeMove(move, botId, true);
-			int heuristic = minimax(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, depth - 1);
+			double heuristic = minimax(field, Integer.MIN_VALUE, Integer.MAX_VALUE, opponentId, depth - 1);
 			field.undo();
-			if (heuristic > bestHeuristic) {
+			if (Double.compare(heuristic, bestHeuristic) > 0) {
 				bestHeuristic = heuristic;
 				bestMove = move;
-			} else if (heuristic == bestHeuristic) {
+			} else if (Double.compare(heuristic, bestHeuristic) == 0) {
 				// choosing randomly
-				if (rand.nextInt(2) == 0) {
+				if (rand.nextInt(2) == 0)
 					bestMove = move;
-				}
 			}
-			sb.append(String.format("%d,%d : %d\n", move.column, move.row, heuristic));
+			sb.append(String.format("%d,%d : %.2f\n", move.column, move.row, heuristic));
 		}
 		System.err.println(sb.toString());
 		
-		if (bestHeuristic == Evaluation.WIN) { // check to see if we can end the game now
+		if (Double.compare(bestHeuristic, Evaluation.WIN) == 0) { // check to see if we can end the game now
 			for (Move move : moves) {
 				field.makeMove(move, botId, true);
 				if (field.getWinner() > 0) {
@@ -72,7 +72,7 @@ public class MinimaxBot extends Bot {
 					field.undo();
 				}
 			}
-		} else if (bestHeuristic == -Evaluation.WIN) { // going to lose, delay it
+		} else if (Double.compare(bestHeuristic, -Evaluation.WIN) == 0) { // going to lose, delay it
 			for (Move move : moves) {
 				field.makeMove(move, botId, true);
 				ArrayList<Move> opponentMoves = field.getAvailableMoves();
@@ -88,14 +88,15 @@ public class MinimaxBot extends Bot {
 					}
 				}
 				field.undo();
-				if (!opponentWins) return move;
+				if (!opponentWins)
+					return move;
 			}
 		}
 		
 		return bestMove;
 	}
 	
-	public int minimax(Field field, int alpha, int beta, int maximizingPlayer, int depth) {
+	public double minimax(Field field, double alpha, double beta, int maximizingPlayer, int depth) {
 		// the previous move maker won, so if the current maximizingPlayer is us
 		// then our opponent made the winning move, so we lost
 		int winner = field.getWinner();
@@ -120,18 +121,18 @@ public class MinimaxBot extends Bot {
 		if (maximizingPlayer == botId) {
 			for (Move move : moves) {
 				field.makeMove(move, maximizingPlayer, true);
-				int heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
+				double heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
 				field.undo();
 				alpha = Math.max(alpha, heuristic);
-				if (beta <= alpha) return alpha;
+				if (Double.compare(beta, alpha) <= 0) return alpha;
 			}
 		} else { // opponent
 			for (Move move : moves) {
 				field.makeMove(move, maximizingPlayer, true);
-				int heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
+				double heuristic = minimax(field, alpha, beta, maximizingPlayer == 1 ? 2 : 1, depth - 1);
 				field.undo();
 				beta = Math.min(beta, heuristic);
-				if (beta <= alpha) return beta;
+				if (Double.compare(beta, alpha) <= 0) return beta;
 			}
 		}
 		return maximizingPlayer == botId ? alpha : beta;
