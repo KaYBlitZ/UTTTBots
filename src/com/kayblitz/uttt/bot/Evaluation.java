@@ -595,14 +595,14 @@ public class Evaluation {
 		return heuristic;
 	}
 	
-	public static final double TWO_IN_A_ROW_OPTIMIZED = 50.0;
-	public static final double MIDDLE_OPTIMIZED = 30.0;
-	public static final double CORNER_OPTIMIZED = 20.0;
-	public static final double SIDE_OPTIMIZED = 10.0;
-	public static final double MINI_TWO_IN_A_ROW_OPTIMIZED = 5.0;
-	public static final double MINI_MIDDLE_OPTIMIZED = 3.0;
-	public static final double MINI_CORNER_OPTIMIZED = 2.0;
-	public static final double MINI_SIDE_OPTIMIZED = 1.0;
+	public static double TWO_IN_A_ROW_OPTIMIZED;
+	public static double MIDDLE_OPTIMIZED;
+	public static double CORNER_OPTIMIZED;
+	public static double SIDE_OPTIMIZED;
+	public static double MINI_TWO_IN_A_ROW_OPTIMIZED;
+	public static double MINI_MIDDLE_OPTIMIZED;
+	public static double MINI_CORNER_OPTIMIZED;
+	public static double MINI_SIDE_OPTIMIZED;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.
