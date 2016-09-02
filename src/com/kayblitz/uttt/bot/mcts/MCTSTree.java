@@ -12,9 +12,9 @@ public class MCTSTree {
 	private MCTSNode root;
 	private int type, botId, opponentId;
 	private Field field;
-	private StringBuffer sb;
+	private StringBuilder sb;
 	
-	public MCTSTree(Field field, StringBuffer sb, int type, int botId, int opponentId) {
+	public MCTSTree(Field field, StringBuilder sb, int type, int botId, int opponentId) {
 		this.field = field;
 		this.sb = sb;
 		this.type = type;

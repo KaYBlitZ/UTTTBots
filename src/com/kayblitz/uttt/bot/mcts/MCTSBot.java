@@ -36,7 +36,8 @@ public class MCTSBot extends Bot {
 	@Override
 	public Move makeMove(Field field, int timebank, int moveNum) {
 		startTime = System.currentTimeMillis();
-		if (moveNum == 1) return new Move(4, 4); // best first move
+		if (moveNum == 1)
+			return new Move(4, 4); // best first move
 		int size = field.getAvailableMoves().size();
 		if (moveNum < 30) {
 			if (size < 4) {
@@ -59,12 +60,13 @@ public class MCTSBot extends Bot {
 				limit = 1600L;
 			}
 		}
-		if (limit > timebank) limit = (long) (0.85f * timebank);
-		StringBuffer sb = new StringBuffer();
+		if (limit > timebank)
+			limit = (long) (0.85f * timebank);
+		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
 		MCTSTree tree = new MCTSTree(field, sb, type, botId, opponentId);
-		int iterations = 0;
 		
+		int iterations = 0;
 		while (getElapsedTime() < limit) {
 			tree.iterate();
 			iterations++;
