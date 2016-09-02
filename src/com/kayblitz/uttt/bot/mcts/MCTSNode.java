@@ -7,9 +7,9 @@ import com.kayblitz.uttt.FieldState;
 import com.kayblitz.uttt.MacroState;
 import com.kayblitz.uttt.Move;
 
-public class Node {	
-	public Node parent;
-	public ArrayList<Node> children;
+public class MCTSNode {	
+	public MCTSNode parent;
+	public ArrayList<MCTSNode> children;
 	public int winner; // -1 if not terminal, 0 if tie, else bot id of winner
 	public int nextMoveBotId; // the id of the bot to make the next move from this state
 	public Move a; // incoming action, move leading to this state
@@ -19,17 +19,17 @@ public class Node {
 	private FieldState fieldState;
 	private MacroState macroState;
 	
-	public Node(Move move, int nextMoveBotId, int winner, Node parent) {
+	public MCTSNode(Move move, int nextMoveBotId, int winner, MCTSNode parent) {
 		this(move.column, move.row, nextMoveBotId, winner, parent);
 	}
-	public Node(int x, int y, int nextMoveBotId, int winner, Node parent) {
+	public MCTSNode(int x, int y, int nextMoveBotId, int winner, MCTSNode parent) {
 		a = new Move(x, y);
 		this.nextMoveBotId = nextMoveBotId;
 		this.winner = winner;
 		this.parent = parent;
 		fieldState = new FieldState();
 		macroState = new MacroState();
-		children = new ArrayList<Node>(9);
+		children = new ArrayList<MCTSNode>(9);
 	}
 	
 	/** Called during backpropagation, value is either WIN(1), TIE(0.5), LOSS(0) */

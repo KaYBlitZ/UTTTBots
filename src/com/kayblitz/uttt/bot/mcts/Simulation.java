@@ -23,7 +23,7 @@ public class Simulation {
 	private static final double LOSS = 0;
 	
 	/** Simulates by playing random moves. Field will be left in a terminal state. */
-	public static double simulateRandom(Field field, Node expanded, int botId, int opponentId) {
+	public static double simulateRandom(Field field, MCTSNode expanded, int botId, int opponentId) {
 		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
 		int winner = expanded.winner;
@@ -47,7 +47,7 @@ public class Simulation {
 	/** Simulates by playing random moves, but both sides will play the winning move when possible.
 	 * The field will be left in an undefined state.
 	 */
-	public static double simulateWinFirstRandom(Field field, Node expanded, int botId, int opponentId) {
+	public static double simulateWinFirstRandom(Field field, MCTSNode expanded, int botId, int opponentId) {
 		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
 		int winner = expanded.winner;

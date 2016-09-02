@@ -6,30 +6,30 @@ import java.util.Random;
 import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
-public class Tree {
+public class MCTSTree {
 	
 	private Random rand;
-	private Node root;
+	private MCTSNode root;
 	private int type, botId, opponentId;
 	private Field field;
 	private StringBuffer sb;
 	
-	public Tree(Field field, StringBuffer sb, int type, int botId, int opponentId) {
+	public MCTSTree(Field field, StringBuffer sb, int type, int botId, int opponentId) {
 		this.field = field;
 		this.sb = sb;
 		this.type = type;
 		this.botId = botId;
 		this.opponentId = opponentId;
 		rand = new Random(System.currentTimeMillis());
-		root = new Node(-1, -1, botId, -1, null);
+		root = new MCTSNode(-1, -1, botId, -1, null);
 		root.saveState(field);
 	}
 	
 	/** Goes through one iteration of the MCTS algorithm */
 	public void iterate() {
 		// Tree policy: selection and expansion
-		Node selected = select(field);
-		Node expanded = selected.isTerminal() ? selected : expand(field, selected);
+		MCTSNode selected = select(field);
+		MCTSNode expanded = selected.isTerminal() ? selected : expand(field, selected);
 		// Simulation
 		// Even if the node is terminal we still simulate it because every iteration afterwards
 		// will select the same terminal node if we do not simulate, resulting in an infinite loop
@@ -42,8 +42,8 @@ public class Tree {
 	 * cn is child visits, c is the exploration constant, and pn is parent visits. Returned node may 
 	 * be a terminal state.
 	 */
-	public Node select(Field field) {
-		Node selected = root;
+	public MCTSNode select(Field field) {
+		MCTSNode selected = root;
 		while (true) {
 			if (selected.isTerminal())
 				return selected; // check to see if we have reached a finished state
@@ -53,17 +53,17 @@ public class Tree {
 			if (selected.children.size() == moves.size()) {
 				// If the next bot's move has a chance to win game, select that move since that bot WILL
 				// ALWAYS choose that winning moving instead of selecting any other move
-				for (Node child : selected.children) {
+				for (MCTSNode child : selected.children) {
 					if (child.winner == selected.nextMoveBotId) return child;
 				}
 				
 				// children all explored at least once, explore deeper using UCT
-				Node selectedChild = null;
+				MCTSNode selectedChild = null;
 				double bestValue = Integer.MIN_VALUE;
 				double exploration = Math.sqrt(2);
 				double constant = Math.log(selected.n);
 				// select the child with the highest UCT value
-				for (Node child : selected.children) {
+				for (MCTSNode child : selected.children) {
 					double value = child.getAverageReward() + exploration * Math.sqrt(constant/child.n);
 					if (Double.compare(value, bestValue) > 0) {
 						bestValue = value;
@@ -84,7 +84,7 @@ public class Tree {
 	 * Adds an unexplored child from the selected node and returns the child. The state of the Field will 
 	 * be that of the newly created child. The passed in node must not be terminal.
 	 */
-	public Node expand(Field field, Node selected) {
+	public MCTSNode expand(Field field, MCTSNode selected) {
 		if (selected.isTerminal()) throw new RuntimeException("MCTS expand: node is terminal");
 		selected.restoreState(field); // restore state of node
 		ArrayList<Move> moves = field.getAvailableMoves();
@@ -97,7 +97,7 @@ public class Tree {
 		while (true) {
 			action = moves.get(index);
 			boolean unique = true;
-			for (Node child : selected.children) {
+			for (MCTSNode child : selected.children) {
 				if (action.column == child.a.column && action.row == child.a.row) {
 					unique = false;
 					break;
@@ -107,7 +107,7 @@ public class Tree {
 			if (++index == moves.size()) index = 0; // wrap to beginning
 		}
 		field.makeMove(action, selected.nextMoveBotId, false); 
-		Node child = new Node(action, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner(), selected);
+		MCTSNode child = new MCTSNode(action, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner(), selected);
 		child.saveState(field);
 		selected.children.add(child); // add to parent's array of children
 		
@@ -117,7 +117,7 @@ public class Tree {
 	/** 
 	 * Simulates a play from the Node to an end state and returns a value, WIN(1), TIE(0.5), LOSS(0).
 	 */
-	public double simulate(Field field, Node expanded) {
+	public double simulate(Field field, MCTSNode expanded) {
 		switch (type) {
 		case Simulation.RANDOM:
 			return Simulation.simulateRandom(field, expanded, botId, opponentId);
@@ -129,7 +129,7 @@ public class Tree {
 	}
 	
 	/** Updates visited nodes: nodes from the expanded node to the root node */
-	public void backpropagate(Node expanded, double result) {
+	public void backpropagate(MCTSNode expanded, double result) {
 		while (expanded != null) {
 			expanded.update(result, botId, opponentId);
 			expanded = expanded.parent;
@@ -147,9 +147,9 @@ public class Tree {
 		int maxRobustN = Integer.MIN_VALUE;
 		double maxRobustQ = Integer.MIN_VALUE;
 		int robustN = Integer.MIN_VALUE;
-		Node maxRobustChild = null, robustChild = null;
+		MCTSNode maxRobustChild = null, robustChild = null;
 		
-		for (Node child : root.children) {
+		for (MCTSNode child : root.children) {
 			sb.append(String.format("Root child %d, %d || %.1f / %d\n", child.a.column, child.a.row, child.q, child.n));
 			// robust child
 			if (child.n > robustN) {

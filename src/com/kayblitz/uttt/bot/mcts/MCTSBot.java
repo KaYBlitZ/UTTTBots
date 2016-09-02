@@ -62,7 +62,7 @@ public class MCTSBot extends Bot {
 		if (limit > timebank) limit = (long) (0.85f * timebank);
 		StringBuffer sb = new StringBuffer();
 		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
-		Tree tree = new Tree(field, sb, type, botId, opponentId);
+		MCTSTree tree = new MCTSTree(field, sb, type, botId, opponentId);
 		int iterations = 0;
 		
 		while (getElapsedTime() < limit) {
