@@ -53,8 +53,7 @@ public class RandomBot extends Bot {
 		Move move = moves.get(random.nextInt(moves.size())); /* get random move from available moves */
 		return move;
 	}
-
-
+	
 	public static void main(String[] args) {
 		BotParser parser = new BotParser(new RandomBot());
 		parser.run();

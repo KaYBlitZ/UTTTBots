@@ -8,25 +8,27 @@ import com.kayblitz.uttt.Move;
 public class MCTSBot extends Bot {
 
 	public static void main(String[] args) {
-		if (args.length < 1) {
-			System.err.println("Simulation type must be given");
+		if (args.length < 2) {
+			System.err.println("Tree type and simulation type must be given");
 			return;
 		}
-		int type = -1;
+		int treeType = -1, simulationType = -1;
 		try {
-			type = Integer.parseInt(args[0]);
+			treeType = Integer.parseInt(args[0]);
+			simulationType = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
-			System.err.println("Invalid simulation type");
+			System.err.println("Invalid tree or simulation type");
 			return;
 		}
-		new BotParser(new MCTSBot(type)).run();
+		new BotParser(new MCTSBot(treeType, simulationType)).run();
 	}
 	
 	private long startTime, limit;
-	private int type;
+	private int treeType, simulationType;
 	
-	public MCTSBot(int type) {
-		this.type = type;
+	public MCTSBot(int treeType, int simulationType) {
+		this.treeType = treeType;
+		this.simulationType = simulationType;
 	}
 	
 	public long getElapsedTime() {
@@ -64,7 +66,12 @@ public class MCTSBot extends Bot {
 			limit = (long) (0.85f * timebank);
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
-		MCTSTree tree = new MCTSTree(field, sb, type, botId, opponentId);
+		MCTree tree = null;
+		if (treeType == MCTree.UCT_TREE) {
+			tree = new UCTTree(field, sb, simulationType, botId, opponentId);
+		} else if (treeType == MCTree.RAVE_TREE) {
+			tree = new RAVETree(field, sb, simulationType, botId, opponentId);
+		}
 		
 		int iterations = 0;
 		while (getElapsedTime() < limit) {

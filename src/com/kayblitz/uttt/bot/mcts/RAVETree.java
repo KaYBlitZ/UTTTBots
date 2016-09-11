@@ -1,39 +1,26 @@
 package com.kayblitz.uttt.bot.mcts;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
-public class MCTSTree {
+public class RAVETree extends MCTree {
 	
-	private Random rand;
-	private MCTSNode root;
-	private int type, botId, opponentId;
-	private Field field;
-	private StringBuilder sb;
-	
-	public MCTSTree(Field field, StringBuilder sb, int type, int botId, int opponentId) {
-		this.field = field;
-		this.sb = sb;
-		this.type = type;
-		this.botId = botId;
-		this.opponentId = opponentId;
-		rand = new Random(System.currentTimeMillis());
-		root = new MCTSNode(-1, -1, botId, -1, null);
-		root.saveState(field);
+	public RAVETree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
+		super(field, sb, simulationType, botId, opponentId);
 	}
 	
 	/** Goes through one iteration of the MCTS algorithm */
+	@Override
 	public void iterate() {
 		// Tree policy: selection and expansion
-		MCTSNode selected = select(field);
-		MCTSNode expanded = selected.isTerminal() ? selected : expand(field, selected);
+		MCTSNode selected = select();
+		MCTSNode expanded = selected.isTerminal() ? selected : expand(selected);
 		// Simulation
 		// Even if the node is terminal we still simulate it because every iteration afterwards
 		// will select the same terminal node if we do not simulate, resulting in an infinite loop
-		double result = simulate(field, expanded);
+		double result = simulate(expanded);
 		// Backpropagation
 		backpropagate(expanded, result);
 	}
@@ -42,7 +29,8 @@ public class MCTSTree {
 	 * cn is child visits, c is the exploration constant, and pn is parent visits. Returned node may 
 	 * be a terminal state.
 	 */
-	public MCTSNode select(Field field) {
+	@Override
+	protected MCTSNode select() {
 		MCTSNode selected = root;
 		while (true) {
 			if (selected.isTerminal())
@@ -84,7 +72,8 @@ public class MCTSTree {
 	 * Adds an unexplored child from the selected node and returns the child. The state of the Field will 
 	 * be that of the newly created child. The passed in node must not be terminal.
 	 */
-	public MCTSNode expand(Field field, MCTSNode selected) {
+	@Override
+	protected MCTSNode expand(MCTSNode selected) {
 		if (selected.isTerminal()) throw new RuntimeException("MCTS expand: node is terminal");
 		selected.restoreState(field); // restore state of node
 		ArrayList<Move> moves = field.getAvailableMoves();
@@ -117,8 +106,9 @@ public class MCTSTree {
 	/** 
 	 * Simulates a play from the Node to an end state and returns a value, WIN(1), TIE(0.5), LOSS(0).
 	 */
-	public double simulate(Field field, MCTSNode expanded) {
-		switch (type) {
+	@Override
+	protected double simulate(MCTSNode expanded) {
+		switch (simulationType) {
 		case Simulation.RANDOM:
 			return Simulation.simulateRandom(field, expanded, botId, opponentId);
 		case Simulation.WIN_FIRST_RANDOM:
@@ -129,7 +119,8 @@ public class MCTSTree {
 	}
 	
 	/** Updates visited nodes: nodes from the expanded node to the root node */
-	public void backpropagate(MCTSNode expanded, double result) {
+	@Override
+	protected void backpropagate(MCTSNode expanded, double result) {
 		while (expanded != null) {
 			expanded.update(result, botId, opponentId);
 			expanded = expanded.parent;
@@ -141,6 +132,7 @@ public class MCTSTree {
 	 * else returns the move of the robust child (most visited). Most visited is valued more than highest
 	 * reward as the most visited node is the more promising one.
 	 */
+	@Override
 	public Move getBestMove() {
 		if (root.children.size() == 0) throw new RuntimeException("MCTS: root node has no children!");
 		
