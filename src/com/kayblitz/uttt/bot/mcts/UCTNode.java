@@ -7,32 +7,34 @@ import com.kayblitz.uttt.FieldState;
 import com.kayblitz.uttt.MacroState;
 import com.kayblitz.uttt.Move;
 
-public class MCTSNode {	
-	public MCTSNode parent;
-	public ArrayList<MCTSNode> children;
+public class UCTNode {
+	public UCTNode parent;
+	public ArrayList<UCTNode> children;
 	public int winner; // -1 if not terminal, 0 if tie, else bot id of winner
-	public int nextMoveBotId; // the id of the bot to make the next move from this state
-	public Move a; // incoming action, move leading to this state
+	/** The id of the bot to make the next move from this state **/
+	public int nextMoveBotId;
+	/** Incoming action, move leading to this state **/
+	public Move a;
 	public int n; // num of visits
 	public double q; // total reward
 	
 	private FieldState fieldState;
 	private MacroState macroState;
 	
-	public MCTSNode(Move move, int nextMoveBotId, int winner, MCTSNode parent) {
+	public UCTNode(Move move, int nextMoveBotId, int winner, UCTNode parent) {
 		this(move.column, move.row, nextMoveBotId, winner, parent);
 	}
-	public MCTSNode(int x, int y, int nextMoveBotId, int winner, MCTSNode parent) {
+	public UCTNode(int x, int y, int nextMoveBotId, int winner, UCTNode parent) {
 		a = new Move(x, y);
 		this.nextMoveBotId = nextMoveBotId;
 		this.winner = winner;
 		this.parent = parent;
 		fieldState = new FieldState();
 		macroState = new MacroState();
-		children = new ArrayList<MCTSNode>(9);
+		children = new ArrayList<UCTNode>(9);
 	}
 	
-	/** Called during backpropagation, value is either WIN(1), TIE(0.5), LOSS(0) */
+	/** Called during backpropagation, result is either WIN(1), TIE(0.5), LOSS(0) */
 	public void update(double result, int botId, int opponentId) {
 		n++;
 		// We need to update the win from the perspective of the player that made the move that
