@@ -8,7 +8,8 @@ import com.kayblitz.uttt.Move;
 public class RAVETree extends MCTree {
 	
 	private RAVENode root;
-	private double raveConstant = 4.0;
+	private static final double EXPLORATION_CONSTANT = Math.sqrt(2);
+	private static final double RAVE_CONSTANT = 0.1;
 	
 	public RAVETree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
 		super(field, sb, simulationType, botId, opponentId);
@@ -55,13 +56,12 @@ public class RAVETree extends MCTree {
 				// children all explored at least once, explore deeper using UCT-RAVE
 				RAVENode selectedChild = null;
 				double bestValue = Integer.MIN_VALUE;
-				double exploration = Math.sqrt(2);
 				double constant = Math.log(selected.n);
 				// select the child with the highest UCT value
 				for (RAVENode child : selected.children) {
 					double value = (1 - child.beta) * child.getAverageReward() + 
 							child.beta * child.getAverageAMAFReward() + 
-							exploration * Math.sqrt(constant/child.n);
+							EXPLORATION_CONSTANT * Math.sqrt(constant/child.n);
 					if (Double.compare(value, bestValue) > 0) {
 						bestValue = value;
 						selectedChild = child;
@@ -164,7 +164,7 @@ public class RAVETree extends MCTree {
 	
 	/** Updates beta according to mimimum MSE schedule **/
 	private void updateBeta(RAVENode node) {
-		node.beta = node.amafN / (node.n + node.amafN + raveConstant * node.n * node.amafN);
+		node.beta = node.amafN / (node.n + node.amafN + RAVE_CONSTANT * node.n * node.amafN);
 	}
 	
 	/**

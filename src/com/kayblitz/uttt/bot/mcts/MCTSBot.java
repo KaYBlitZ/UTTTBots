@@ -62,8 +62,9 @@ public class MCTSBot extends Bot {
 				limit = 1600L;
 			}
 		}
-		if (limit > timebank)
-			limit = (long) (0.85f * timebank);
+		// add 5 ms for getBestMove and output
+		if (limit + 5 > timebank)
+			limit = (long) (0.9f * timebank);
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
 		MCTree tree = null;

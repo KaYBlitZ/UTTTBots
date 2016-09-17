@@ -19,8 +19,6 @@ package com.kayblitz.uttt;
 
 import java.util.Scanner;
 
-import com.kayblitz.uttt.bot.Evaluation;
-
 /**
  * BotParser class
  * 
@@ -43,9 +41,10 @@ public class BotParser {
 
 	public void run() {
 		field = new Field();
-		while(scanner.hasNextLine()) {
+		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
-			if(line.length() == 0) continue;
+			if (line.length() == 0)
+				continue;
 			
 			String[] parts = line.split(" ");
 			if(parts[0].equals("settings")) {
@@ -53,25 +52,6 @@ public class BotParser {
 					int botId = Integer.parseInt(parts[2]);
 					bot.botId = botId;
 					bot.opponentId = botId == 1 ? 2 : 1;
-					if (bot.botId == 1) {
-						Evaluation.TWO_IN_A_ROW_OPTIMIZED = 50.0;
-						Evaluation.MIDDLE_OPTIMIZED = 30.0;
-						Evaluation.CORNER_OPTIMIZED = 20.0;
-						Evaluation.SIDE_OPTIMIZED = 10.0;
-						Evaluation.MINI_TWO_IN_A_ROW_OPTIMIZED = 5.0;
-						Evaluation.MINI_MIDDLE_OPTIMIZED = 3.0;
-						Evaluation.MINI_CORNER_OPTIMIZED = 2.0;
-						Evaluation.MINI_SIDE_OPTIMIZED = 1.0;
-					} else {
-						Evaluation.TWO_IN_A_ROW_OPTIMIZED = 0.6011641903860614;
-						Evaluation.MIDDLE_OPTIMIZED = 0.431060854062568;
-						Evaluation.CORNER_OPTIMIZED = 1.1628542873013277;
-						Evaluation.SIDE_OPTIMIZED = 0.8721021530689863;
-						Evaluation.MINI_TWO_IN_A_ROW_OPTIMIZED = 0.19669482972968466;
-						Evaluation.MINI_MIDDLE_OPTIMIZED = 0.37401554266349935;
-						Evaluation.MINI_CORNER_OPTIMIZED = 0.8584616541090139;
-						Evaluation.MINI_SIDE_OPTIMIZED = 1.1813617174231033;
-					}
 				}
 			} else if(parts[0].equals("update") && parts[1].equals("game")) { /* new game data */
 			    field.parseGameData(parts[2], parts[3]);

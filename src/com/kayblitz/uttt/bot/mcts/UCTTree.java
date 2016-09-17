@@ -7,6 +7,7 @@ import com.kayblitz.uttt.Move;
 
 public class UCTTree extends MCTree {
 	
+	private static final double EXPLORATION_CONSTANT = 0.5;
 	private UCTNode root;
 	
 	public UCTTree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
@@ -51,11 +52,10 @@ public class UCTTree extends MCTree {
 				// children all explored at least once, explore deeper using UCT
 				UCTNode selectedChild = null;
 				double bestValue = Integer.MIN_VALUE;
-				double exploration = Math.sqrt(2);
 				double constant = Math.log(selected.n);
 				// select the child with the highest UCT value
 				for (UCTNode child : selected.children) {
-					double value = child.getAverageReward() + exploration * Math.sqrt(constant/child.n);
+					double value = child.getAverageReward() + EXPLORATION_CONSTANT * Math.sqrt(constant/child.n);
 					if (Double.compare(value, bestValue) > 0) {
 						bestValue = value;
 						selectedChild = child;

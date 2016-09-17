@@ -62,8 +62,9 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 			} else {
 				limit = 1700L;
 			}
-			if (limit > timebank)
-				limit = (long) (0.85f * timebank);
+			// extra time for logic after for loop
+			if (limit + 5 > timebank)
+				limit = (long) (0.9f * timebank);
 		}
 		
 		// best values from a completely finished depth
