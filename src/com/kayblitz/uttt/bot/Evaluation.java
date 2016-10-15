@@ -603,6 +603,8 @@ public class Evaluation {
 	private static final double MINI_MIDDLE_OPTIMIZED = -0.8167288928897225;
 	private static final double MINI_CORNER_OPTIMIZED = 0.05977267391700242;
 	private static final double MINI_SIDE_OPTIMIZED = 0.4042137326923306;
+	/** Max possible value for the optimized evaluation. This value is not obtainable through regular play. **/
+	public static final double MAX_HEURISTIC_OPTIMIZED = 53.848553032947635;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.

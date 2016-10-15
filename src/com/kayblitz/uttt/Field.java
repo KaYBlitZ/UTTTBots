@@ -102,6 +102,11 @@ public class Field {
 				mBoard[x][y] = 0;
 			}
 		}
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				mMacroboard[x][y] = -1;
+			}
+		}
 	}
 
 	public ArrayList<Move> getAvailableMoves() {

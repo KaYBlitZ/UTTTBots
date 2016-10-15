@@ -8,6 +8,7 @@ import com.kayblitz.uttt.Move;
 public abstract class MCTree {
 	public static final int UCT_TREE = 0;
 	public static final int RAVE_TREE = 1;
+	public static final int RAVE_HEURISTIC_TREE = 2;
 	
 	protected Random rand;
 	protected int simulationType, botId, opponentId;

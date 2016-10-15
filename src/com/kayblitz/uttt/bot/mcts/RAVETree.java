@@ -7,8 +7,8 @@ import com.kayblitz.uttt.Move;
 
 public class RAVETree extends MCTree {
 	
-	private RAVENode root;
-	private static final double EXPLORATION_CONSTANT = 0.5;
+	protected RAVENode root;
+	protected static final double EXPLORATION_CONSTANT = 0.5;
 	private static final double RAVE_CONSTANT = 0.1;
 	
 	public RAVETree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
@@ -37,7 +37,7 @@ public class RAVETree extends MCTree {
 	 * cn is child visits, c is the exploration constant, and pn is parent visits. Returned node may 
 	 * be a terminal state.
 	 */
-	private RAVENode select() {
+	protected RAVENode select() {
 		RAVENode selected = root;
 		while (true) {
 			if (selected.isTerminal())
@@ -81,7 +81,7 @@ public class RAVETree extends MCTree {
 	 * Adds an unexplored child from the selected node and returns the child. The state of the Field will 
 	 * be that of the newly created child. The passed in node must not be terminal.
 	 */
-	private RAVENode expand(RAVENode selected) {
+	protected RAVENode expand(RAVENode selected) {
 		if (selected.isTerminal()) throw new RuntimeException("MCTS expand: node is terminal");
 		selected.restoreState(field); // restore state of node
 		ArrayList<Move> moves = field.getAvailableMoves();
@@ -114,7 +114,7 @@ public class RAVETree extends MCTree {
 	/** 
 	 * Simulates a play from the Node to an end state and returns a value, WIN(1), TIE(0.5), LOSS(0).
 	 */
-	private double simulate(RAVENode expanded, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves) {
+	protected double simulate(RAVENode expanded, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves) {
 		switch (simulationType) {
 		case Simulation.WIN_FIRST_RANDOM_RAVE:
 			return Simulation.simulateWinFirstRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
@@ -124,7 +124,7 @@ public class RAVETree extends MCTree {
 	}
 	
 	/** Updates visited nodes: nodes from the expanded node to the root node */
-	private void backpropagate(RAVENode expanded, double result, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves) {
+	protected void backpropagate(RAVENode expanded, double result, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves) {
 		while (expanded != null) {
 			// standard UCT update
 			expanded.update(result, botId, opponentId);
@@ -163,7 +163,7 @@ public class RAVETree extends MCTree {
 	}
 	
 	/** Updates beta according to mimimum MSE schedule **/
-	private void updateBeta(RAVENode node) {
+	protected void updateBeta(RAVENode node) {
 		node.beta = node.amafN / (node.n + node.amafN + RAVE_CONSTANT * node.n * node.amafN);
 	}
 	

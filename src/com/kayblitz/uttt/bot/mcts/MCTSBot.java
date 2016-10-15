@@ -72,6 +72,8 @@ public class MCTSBot extends Bot {
 			tree = new UCTTree(field, sb, simulationType, botId, opponentId);
 		} else if (treeType == MCTree.RAVE_TREE) {
 			tree = new RAVETree(field, sb, simulationType, botId, opponentId);
+		} else if (treeType == MCTree.RAVE_HEURISTIC_TREE) {
+			tree = new RAVEHeuristicTree(field, sb, simulationType, botId, opponentId);
 		}
 		
 		int iterations = 0;
