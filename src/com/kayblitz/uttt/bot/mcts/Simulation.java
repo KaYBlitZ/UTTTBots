@@ -46,7 +46,7 @@ public class Simulation {
 	}
 	
 	/** Simulates by playing random moves, but both sides will play the winning move when possible.
-	 * The field will be left in an undefined state.
+	 * The field will be left in a terminal state.
 	 */
 	public static double simulateWinFirstRandom(Field field, UCTNode expanded, int botId, int opponentId) {
 		Random rand = new Random(System.currentTimeMillis());
@@ -59,9 +59,11 @@ public class Simulation {
 			for (Move move : moves) {
 				field.makeMove(move, currentId, true);
 				winner = field.getWinner();
-				field.undo();
-				if (winner > 0)
+				if (winner > 0) {
 					return currentId == botId ? WIN : LOSS;
+				} else {
+					field.undo();
+				}
 			}
 			// no winning move, just play a random move
 			Move move = moves.get(rand.nextInt(moves.size()));
@@ -79,7 +81,7 @@ public class Simulation {
 	}
 	
 	/** Simulates by playing random moves, but both sides will play the winning move when possible.
-	 * The field will be left in an undefined state. The moves made during simulation will be stored
+	 * The field will be left in a terminal state. The moves made during simulation will be stored
 	 * in botMoves and opponentMoves. These saved moves can later be used to implement RAVE functionality.
 	 */
 	public static double simulateWinFirstRandomRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
@@ -94,10 +96,11 @@ public class Simulation {
 			for (Move move : moves) {
 				field.makeMove(move, currentId, true);
 				winner = field.getWinner();
-				field.undo();
 				if (winner > 0) {
 					addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
 					return currentId == botId ? WIN : LOSS;
+				} else {
+					field.undo();
 				}
 			}
 			// no winning move, just play a random move
