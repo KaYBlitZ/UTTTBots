@@ -19,6 +19,9 @@ package com.kayblitz.uttt;
 
 import java.util.Scanner;
 
+import com.kayblitz.uttt.bot.mcts.RAVEHeuristicNode;
+import com.kayblitz.uttt.bot.mcts.RAVETree;
+
 /**
  * BotParser class
  * 
@@ -53,8 +56,17 @@ public class BotParser {
 					bot.botId = botId;
 					bot.opponentId = botId == 1 ? 2 : 1;
 				}
-			} else if(parts[0].equals("update") && parts[1].equals("game")) { /* new game data */
-			    field.parseGameData(parts[2], parts[3]);
+			} else if(parts[0].equals("update")) { /* new game data */
+				if (parts[1].equals("game")) {
+					field.parseGameData(parts[2], parts[3]);
+				} else if (parts[1].equals("rave")) {
+					RAVETree.EXPLORATION_CONSTANT = Double.parseDouble(parts[2]);
+					RAVETree.RAVE_CONSTANT = Double.parseDouble(parts[3]);
+				} else if (parts[1].equals("raveheuristics")) {
+					RAVEHeuristicNode.HEURISTIC_MULTIPLIER = Double.parseDouble(parts[2]);
+					RAVEHeuristicNode.UCT_CONFIDENCE_CONSTANT = Double.parseDouble(parts[3]);
+					RAVEHeuristicNode.AMAF_CONFIDENCE_CONSTANT = Double.parseDouble(parts[4]);
+				}
 			} else if(parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
 					int timebank = Integer.parseInt(parts[2]);

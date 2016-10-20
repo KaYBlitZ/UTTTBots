@@ -6,9 +6,9 @@ import com.kayblitz.uttt.bot.Evaluation;
 
 public class RAVEHeuristicNode extends RAVENode {
 	
-	private static final double HEURISTIC_MULTIPLIER = 1.0;
-	private static final double UCT_CONFIDENCE_CONSTANT = 2.0;
-	private static final double AMAF_CONFIDENCE_CONSTANT = 2.0;
+	public static double HEURISTIC_MULTIPLIER = 0.1;
+	public static double UCT_CONFIDENCE_CONSTANT = 2.0;
+	public static double AMAF_CONFIDENCE_CONSTANT = 2.0;
 	
 	/** The value of the state this node is in according to the evaluation function **/
 	public double heuristic;

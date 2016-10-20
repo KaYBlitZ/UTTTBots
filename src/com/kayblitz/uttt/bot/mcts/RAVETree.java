@@ -8,8 +8,8 @@ import com.kayblitz.uttt.Move;
 public class RAVETree extends MCTree {
 	
 	protected RAVENode root;
-	protected static final double EXPLORATION_CONSTANT = 0.5;
-	private static final double RAVE_CONSTANT = 0.1;
+	public static double EXPLORATION_CONSTANT = 0.5;
+	public static double RAVE_CONSTANT = 0.1;
 	
 	public RAVETree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
 		super(field, sb, simulationType, botId, opponentId);
