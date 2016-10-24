@@ -29,6 +29,8 @@ public class MCTSBot extends Bot {
 	public MCTSBot(int treeType, int simulationType) {
 		this.treeType = treeType;
 		this.simulationType = simulationType;
+		if (simulationType == Simulation.WIN_FIRST_HEURISTIC_RAVE)
+			System.err.println("WARNING: Using heuristic playout. This can result in significant performance decrease.");
 	}
 	
 	public long getElapsedTime() {

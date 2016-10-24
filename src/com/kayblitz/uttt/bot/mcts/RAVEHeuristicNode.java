@@ -7,8 +7,8 @@ import com.kayblitz.uttt.bot.Evaluation;
 public class RAVEHeuristicNode extends RAVENode {
 	
 	public static double HEURISTIC_MULTIPLIER = 0.1;
-	public static double UCT_CONFIDENCE_CONSTANT = 2.0;
-	public static double AMAF_CONFIDENCE_CONSTANT = 2.0;
+	public static double UCT_CONFIDENCE = 2.0;
+	public static double AMAF_CONFIDENCE = 2.0;
 	
 	/** The value of the state this node is in according to the evaluation function **/
 	public double heuristic;
@@ -24,8 +24,8 @@ public class RAVEHeuristicNode extends RAVENode {
 		heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId) + Evaluation.MAX_HEURISTIC_OPTIMIZED;;
 		heuristic *= HEURISTIC_MULTIPLIER;
 		q = heuristic;
-		n = (int) (q * UCT_CONFIDENCE_CONSTANT);
+		n = (int) (q * UCT_CONFIDENCE);
 		amafQ = heuristic;
-		amafN = (int) (amafQ * AMAF_CONFIDENCE_CONSTANT);
+		amafN = (int) (amafQ * AMAF_CONFIDENCE);
 	}
 }

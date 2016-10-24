@@ -21,6 +21,7 @@ import java.util.Scanner;
 
 import com.kayblitz.uttt.bot.mcts.RAVEHeuristicNode;
 import com.kayblitz.uttt.bot.mcts.RAVETree;
+import com.kayblitz.uttt.bot.mcts.Simulation;
 
 /**
  * BotParser class
@@ -64,8 +65,10 @@ public class BotParser {
 					RAVETree.RAVE_CONSTANT = Double.parseDouble(parts[3]);
 				} else if (parts[1].equals("raveheuristics")) {
 					RAVEHeuristicNode.HEURISTIC_MULTIPLIER = Double.parseDouble(parts[2]);
-					RAVEHeuristicNode.UCT_CONFIDENCE_CONSTANT = Double.parseDouble(parts[3]);
-					RAVEHeuristicNode.AMAF_CONFIDENCE_CONSTANT = Double.parseDouble(parts[4]);
+					RAVEHeuristicNode.UCT_CONFIDENCE = Double.parseDouble(parts[3]);
+					RAVEHeuristicNode.AMAF_CONFIDENCE = Double.parseDouble(parts[4]);
+				} else if (parts[1].equals("simulationconstants")) {
+					Simulation.RAVE_HEURISTIC_SIMULATION = Integer.parseInt(parts[2]);
 				}
 			} else if(parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */

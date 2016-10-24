@@ -118,6 +118,12 @@ public class RAVETree extends MCTree {
 		switch (simulationType) {
 		case Simulation.WIN_FIRST_RANDOM_RAVE:
 			return Simulation.simulateWinFirstRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
+		case Simulation.WIN_FIRST_HEURISTIC_RAVE:
+			if (rand.nextInt(100) < Simulation.RAVE_HEURISTIC_SIMULATION) { // simulate using best heuristic
+				return Simulation.simulateWinFirstHeuristicRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
+			} else { // simulate randomly
+				return Simulation.simulateWinFirstRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
+			}
 		default:
 			throw new RuntimeException("Invalid RAVE simulation type");
 		}

@@ -328,6 +328,12 @@ public class Field {
 		lastMacro.restoreState(mMacroboard);
 	}
 	
+	/** Removes last saved move. Does NOT undo the move **/
+	public void pop() {
+		moves.remove(moves.size() - 1);
+		macroStates.remove(macroStates.size() - 1);
+	}
+	
 	public int[][] getMacroboard() {
 		return mMacroboard;
 	}
