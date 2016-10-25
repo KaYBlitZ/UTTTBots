@@ -20,26 +20,28 @@ public class RAVENode {
 	public int n, amafN; // num of visits
 	public double q, amafQ; // total reward
 	public double beta;
+	public int numChildren;
 	
 	private FieldState fieldState;
 	private MacroState macroState;
 	
-	public RAVENode(Move move, int nextMoveBotId, int winner, RAVENode parent) {
-		this(move.column, move.row, nextMoveBotId, winner, parent);
+	public RAVENode(Move move, int nextMoveBotId, int winner, RAVENode parent, int numChildren) {
+		this(move.column, move.row, nextMoveBotId, winner, parent, numChildren);
 	}
-	public RAVENode(int x, int y, int nextMoveBotId, int winner, RAVENode parent) {
+	public RAVENode(int x, int y, int nextMoveBotId, int winner, RAVENode parent, int numChildren) {
 		a = new Move(x, y);
 		this.nextMoveBotId = nextMoveBotId;
 		this.winner = winner;
 		this.parent = parent;
 		fieldState = new FieldState();
 		macroState = new MacroState();
-		children = new ArrayList<RAVENode>(9);
+		children = new ArrayList<RAVENode>(numChildren);
 		beta = 1.0;
+		this.numChildren = numChildren;
 	}
 	
 	/** Called during backpropagation, updates UCT values, result is either WIN(1), TIE(0.5), LOSS(0) */
-	public void update(double result, int botId, int opponentId) {
+	public void updateUCT(double result, int botId, int opponentId) {
 		n++;
 		// We need to update the win from the perspective of the player that made the move that
 		// created this node. This will cause MCTS to converge to minimax given enough time and
@@ -67,13 +69,13 @@ public class RAVENode {
 	}
 	
 	public void saveState(Field field) {
-		fieldState.saveState(field.getBoard());
-		macroState.saveState(field.getMacroboard());
+		fieldState.saveState(field.getField());
+		macroState.saveState(field.getMacroField());
 	}
 	
 	public void restoreState(Field field) {
-		fieldState.restoreState(field.getBoard());
-		macroState.restoreState(field.getMacroboard());
+		fieldState.restoreState(field.getField());
+		macroState.restoreState(field.getMacroField());
 	}
 	
 	/** Returns the ratio reward/visits for UCT */

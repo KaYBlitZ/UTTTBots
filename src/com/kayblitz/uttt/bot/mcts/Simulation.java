@@ -18,17 +18,19 @@ public class Simulation {
 	public static final int RANDOM = 0;
 	public static final int WIN_FIRST_RANDOM = 1;
 	public static final int WIN_FIRST_RANDOM_RAVE = 2;
-	public static final int WIN_FIRST_HEURISTIC_RAVE = 3;
+	public static final int ADVANCED_OPTIMIZED_EPT = 3;
 	
-	public static int RAVE_HEURISTIC_SIMULATION = 50;
+	public static int UCT_EPT_MAX_MOVES = 60;
+	public static double EPT_WIN_LOSS_THRESHOLD = 0.3;
 	// values are recommended to be in the range [0,1]
 	private static final double WIN = 1;
 	private static final double TIE = 0.5;
 	private static final double LOSS = 0;
 	
+	private static final Random rand = new Random(System.currentTimeMillis());
+	
 	/** Simulates by playing random moves. Field will be left in a terminal state. */
 	public static double simulateRandom(Field field, UCTNode expanded, int botId, int opponentId) {
-		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
 		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
@@ -52,7 +54,6 @@ public class Simulation {
 	 * The field will be left in a terminal state.
 	 */
 	public static double simulateWinFirstRandom(Field field, UCTNode expanded, int botId, int opponentId) {
-		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
 		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
@@ -90,7 +91,6 @@ public class Simulation {
 	 */
 	public static double simulateWinFirstRandomRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
 			ArrayList<Move> opponentMoves, int botId, int opponentId) {
-		Random rand = new Random(System.currentTimeMillis());
 		expanded.restoreState(field);
 		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
@@ -124,47 +124,36 @@ public class Simulation {
 		}
 	}
 	
-	/** Simulates by playing the best heuristic move, but both sides will play the winning move when possible. 
-	 * The field will be left in a terminal state. The moves made during simulation will be stored in botMoves 
-	 * and opponentMoves. These saved moves can later be used to implement RAVE functionality.
-	 */
-	public static double simulateWinFirstHeuristicRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
-			ArrayList<Move> opponentMoves, int botId, int opponentId) {
+	private static void addMove(Move move, int currentId, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves,
+			int botId, int opponentId) {
+		if (currentId == botId) {
+			botMoves.add(move);
+		} else {
+			opponentMoves.add(move);
+		}
+	}
+	
+	public static double simulateAdvancedOptimizedEPT(Field field, UCTNode expanded, int botId, int opponentId) {
 		expanded.restoreState(field);
 		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
+		int numMoves = 0;
 		while (winner < 0) {
 			ArrayList<Move> moves = field.getAvailableMoves();
-			// check for winning move and the best move
-			Move bestMove = null;
-			double bestHeuristic = currentId == botId ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-			for (Move move : moves) {
-				field.makeMove(move, currentId, true);
-				winner = field.getWinner();
+			Move move = moves.get(rand.nextInt(moves.size()));
+			field.makeMove(move, currentId, false);
+			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
+			if (++numMoves == UCT_EPT_MAX_MOVES) {
 				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
-				if (winner > 0) {
-					addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
-					field.pop();
-					return currentId == botId ? WIN : LOSS;
+				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
+					return WIN;
+				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {
+					return LOSS;
 				} else {
-					field.undo();
-				}
-				if (currentId == botId) { // bot plays highest heuristic move
-					if (Double.compare(heuristic, bestHeuristic) > 0) {
-						bestMove = move;
-						bestHeuristic = heuristic;
-					}
-				} else { // opponent plays lowest heuristic move
-					if (Double.compare(heuristic, bestHeuristic) < 0) {
-						bestMove = move;
-						bestHeuristic = heuristic;
-					}
+					return TIE;
 				}
 			}
-			field.makeMove(bestMove, currentId, false);
-			winner = field.getWinner();
-			addMove(bestMove, currentId, botMoves, opponentMoves, botId, opponentId);
-			currentId = currentId == 1 ? 2 : 1;
 		}
 		if (winner == botId) {
 			return WIN;
@@ -172,15 +161,6 @@ public class Simulation {
 			return TIE;
 		} else {
 			return LOSS;
-		}
-	}
-	
-	private static void addMove(Move move, int currentId, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves,
-			int botId, int opponentId) {
-		if (currentId == botId) {
-			botMoves.add(move);
-		} else {
-			opponentMoves.add(move);
 		}
 	}
 }

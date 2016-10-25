@@ -18,6 +18,7 @@
 package com.kayblitz.uttt;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * Field class
@@ -30,22 +31,25 @@ import java.util.ArrayList;
  */
 
 public class Field {
-    private int mRoundNr;
-    private int mMoveNr;
-	private int[][] mBoard;
-	private int[][] mMacroboard;
-
-	private final int COLS = 9, ROWS = 9;
-	private String mLastError = "";
-	private ArrayList<Move> moves;
-	private ArrayList<MacroState> macroStates;
+	/** Field refers to the entire field
+	 * MacroField refers to the large TTT field
+	 * MicroField refers to any single "mini" TTT field
+	 */
+	public static final int COLS = 9, ROWS = 9;
+	
+    private int roundNum;
+    private int moveNum;
+	private int[][] field;
+	private int[][] macroField;
+	private Stack<Move> moves;
+	private Stack<MacroState> macroStates;
 	
 	public Field() {
-		mBoard = new int[COLS][ROWS];
-		mMacroboard = new int[COLS / 3][ROWS / 3];
-		moves = new ArrayList<Move>(81);
-		macroStates = new ArrayList<MacroState>(81);
-		clearBoard();
+		field = new int[COLS][ROWS];
+		macroField = new int[COLS / 3][ROWS / 3];
+		moves = new Stack<Move>();
+		macroStates = new Stack<MacroState>();
+		clearFields();
 	}
 	
 	/**
@@ -55,14 +59,14 @@ public class Field {
 	 */
 	public void parseGameData(String key, String value) {
 	    if (key.equals("round")) {
-	        mRoundNr = Integer.parseInt(value);
+	        roundNum = Integer.parseInt(value);
 	    } else if (key.equals("move")) {
-	        mMoveNr = Integer.parseInt(value);
-	        System.err.println("Move " + mMoveNr);
+	        moveNum = Integer.parseInt(value);
+	        System.err.println("Move " + moveNum);
 	    } else if (key.equals("field")) {
             parseFromString(value); /* Parse Field with data */
         } else if (key.equals("macroboard")) {
-            parseMacroboardFromString(value); /* Parse macroboard with data */
+            parseMacroFieldFromString(value); /* Parse macro field with data */
         }
 	}
 	
@@ -75,36 +79,32 @@ public class Field {
 		int counter = 0;
 		for (int y = 0; y < ROWS; y++) {
 			for (int x = 0; x < COLS; x++) {
-				mBoard[x][y] = Integer.parseInt(r[counter]); 
+				field[x][y] = Integer.parseInt(r[counter]); 
 				counter++;
 			}
 		}
 	}
 	
-	/**
-	 * Initialise macroboard from comma separated String
-	 * @param String : 
-	 */
-	public void parseMacroboardFromString(String s) {
+	public void parseMacroFieldFromString(String s) {
 		String[] r = s.split(",");
 		int counter = 0;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
-				mMacroboard[x][y] = Integer.parseInt(r[counter]);
+				macroField[x][y] = Integer.parseInt(r[counter]);
 				counter++;
 			}
 		}
 	}
 	
-	public void clearBoard() {
+	public void clearFields() {
 		for (int x = 0; x < COLS; x++) {
 			for (int y = 0; y < ROWS; y++) {
-				mBoard[x][y] = 0;
+				field[x][y] = 0;
 			}
 		}
 		for (int x = 0; x < 3; x++) {
 			for (int y = 0; y < 3; y++) {
-				mMacroboard[x][y] = -1;
+				macroField[x][y] = -1;
 			}
 		}
 	}
@@ -113,7 +113,8 @@ public class Field {
 	    ArrayList<Move> moves = new ArrayList<Move>();
 	    for (int x = 0; x < COLS; x++) {
 	    	for (int y = 0; y < ROWS; y++) {
-                if (isInActiveMacroboard(x, y) && mBoard[x][y] == 0) {
+	    		// check if in allowed macro field and if field is empty
+                if (macroField[x/3][y/3] == -1 && field[x][y] == 0) {
                     moves.add(new Move(x, y));
                 }
             }
@@ -121,36 +122,28 @@ public class Field {
 		return moves;
 	}
 	
-	public boolean isInActiveMacroboard(int x, int y) {
-	    return mMacroboard[x/3][y/3] == -1;
+	public int getNumAvailableMoves() {
+		int n = 0;
+		for (int x = 0; x < COLS; x++) {
+	    	for (int y = 0; y < ROWS; y++) {
+	    		// check if in allowed macro field and if field is empty
+                if (macroField[x/3][y/3] == -1 && field[x][y] == 0) {
+                    n++;
+                }
+            }
+        }
+		return n;
 	}
-	
-	/**
-	 * Returns reason why addMove returns false
-	 * @param args : 
-	 * @return : reason why addMove returns false
-	 */
-	public String getLastError() {
-		return mLastError;
-	}
-
 	
 	@Override
-	/**
-	 * Creates comma separated String with player ids for the microboards.
-	 * 
-	 * @param args
-	 *            :
-	 * @return : String with player names for every cell, or 0 when cell is
-	 *         empty.
-	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		int counter = 0;
 		for (int y = 0; y < ROWS; y++) {
 			for (int x = 0; x < COLS; x++) {
-				if (counter > 0) sb.append(',');
-				sb.append(mBoard[x][y]);
+				if (counter > 0)
+					sb.append(',');
+				sb.append(field[x][y]);
 				counter++;
 			}
 		}
@@ -162,49 +155,25 @@ public class Field {
 		int counter = 0;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
-				if (counter > 0) sb.append(',');
-				sb.append(mMacroboard[x][y]);
+				if (counter > 0)
+					sb.append(',');
+				sb.append(macroField[x][y]);
 				counter++;
 			}
 		}
 		return sb.toString();
 	}
 	
-	/**
-	 * Checks whether the field is full
-	 * @param args : 
-	 * @return : Returns true when field is full, otherwise returns false.
-	 */
-	public boolean isFull() {
-		for (int x = 0; x < COLS; x++)
-		  for (int y = 0; y < ROWS; y++)
-		    if (mBoard[x][y] == 0)
-		      return false; // At least one cell is not filled
-		// All cells are filled
-		return true;
-	}
-	
-	public int getNrColumns() {
+	public int getNumColumns() {
 		return COLS;
 	}
 	
-	public int getNrRows() {
+	public int getNumRows() {
 		return ROWS;
 	}
 	
 	public int getMoveNum() {
-		return mMoveNr;
-	}
-
-	public boolean isEmpty() {
-		for (int x = 0; x < COLS; x++) {
-			  for (int y = 0; y < ROWS; y++) {
-				  if (mBoard[x][y] > 0) {
-					  return false;
-				  }
-			  }
-		}
-		return true;
+		return moveNum;
 	}
 	
 	/**
@@ -213,7 +182,7 @@ public class Field {
 	 * @return : int
 	 */
 	public int getPlayerId(int column, int row) {
-		return mBoard[column][row];
+		return field[column][row];
 	}
 	
 	/**
@@ -221,34 +190,35 @@ public class Field {
 	 * @return
 	 */
 	public int getWinner() {
-		if (mMacroboard[0][0] > 0 && mMacroboard[0][0] == mMacroboard[1][1] &&
-				mMacroboard[1][1] == mMacroboard[2][2]) { // \ diagonal
-			return mMacroboard[0][0];
-		} else if (mMacroboard[0][2] > 0 && mMacroboard[0][2] == mMacroboard[1][1] &&
-				mMacroboard[1][1] == mMacroboard[2][0]) { // / diagonal
-			return mMacroboard[0][2];
+		if (macroField[0][0] > 0 && macroField[0][0] == macroField[1][1] &&
+				macroField[1][1] == macroField[2][2]) { // \ diagonal
+			return macroField[0][0];
+		} else if (macroField[0][2] > 0 && macroField[0][2] == macroField[1][1] &&
+				macroField[1][1] == macroField[2][0]) { // / diagonal
+			return macroField[0][2];
 		}
 		
 		// check vertical
 		for (int x = 0; x < 3; x++) {
-			if (mMacroboard[x][0] > 0 && mMacroboard[x][0] == mMacroboard[x][1] &&
-					mMacroboard[x][1] == mMacroboard[x][2]) {
-				return mMacroboard[x][0];
+			if (macroField[x][0] > 0 && macroField[x][0] == macroField[x][1] &&
+					macroField[x][1] == macroField[x][2]) {
+				return macroField[x][0];
 			}
 		}
 		
 		// check horizontal
 		for (int y = 0; y < 3; y++) {
-			if (mMacroboard[0][y] > 0 && mMacroboard[0][y] == mMacroboard[1][y] &&
-					mMacroboard[1][y] == mMacroboard[2][y]) {
-				return mMacroboard[0][y];
+			if (macroField[0][y] > 0 && macroField[0][y] == macroField[1][y] &&
+					macroField[1][y] == macroField[2][y]) {
+				return macroField[0][y];
 			}
 		}
 		
 		for (int col = 0; col < 3; col++) {
 			for (int row = 0; row < 3; row++) {
 				// game still playable
-				if (mMacroboard[col][row] == -1) return -1;
+				if (macroField[col][row] == -1)
+					return -1;
 			}
 		}
 		
@@ -266,92 +236,79 @@ public class Field {
 		return makeMove(move.column, move.row, id, addToStack);
 	}
 	
-	/**
-	 * Makes the specified move
-	 * @param column
-	 * @param row
-	 * @param id
-	 * @param addToStack - add to stack to undo later
-	 * @return
-	 */
 	public boolean makeMove(int column, int row, int id, boolean addToStack) {
-		if (mBoard[column][row] > 0) throw new RuntimeException("Invalid move: space not empty");
+		if (field[column][row] > 0)
+			throw new RuntimeException("Invalid move: space not empty");
 		
-		mBoard[column][row] = id; // do move
+		field[column][row] = id;
 		if (addToStack) {
-			moves.add(new Move(column, row)); // save move
-			// save original macro board state
+			moves.push(new Move(column, row)); // save move
+			// save original micro field state
 			MacroState state = new MacroState();
-			state.saveState(mMacroboard);
-			macroStates.add(state);
+			state.saveState(macroField);
+			macroStates.push(state);
 		}
-		// update macro board state
-		updateMacro(column, row);
+		// update macro field state
+		updateMacroWinner(column / 3, row / 3);
+		updateMacroField(column, row);
 		return true;
 	}
 	
-	public void updateMacro(int column, int row) {
-		// ie: 3,2 move -> 0,2 macro -> 0,6 top-left box coords
-		// convert move coords into next macro board coords 
-		while (column > 2) column -= 3;
-		while (row > 2) row -= 3;
-		// convert macro board coords into top-left box coords
-		int bCol = column * 3;
-		int bRow = row * 3;
+	public void updateMacroWinner(int macroColumn, int macroRow) {
+		macroField[macroColumn][macroRow] = getMicroWinner(macroColumn * 3, macroRow * 3);
+	}
+	
+	public void updateMacroField(int column, int row) {
+		// ie: 3,2 move -> 0,2 next micro -> 0,6 top-left next micro box coords
+		// ie: 5,4 -> 2,1 -> 6,3
+		// convert move coords into next micro field coords 
+		while (column > 2)
+			column -= 3;
+		while (row > 2)
+			row -= 3;
 
-		// whether the next board is finished or not
-		boolean nextMiniOpen = getMiniWinner(bCol, bRow) == -1;
+		// whether the next micro field is finished or not
+		boolean nextMicroPlayable = getMicroWinner(column * 3, row * 3) == -1;
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 3; x++) {
-				int winner = getMiniWinner(x * 3, y * 3);
-				if (winner >= 0) { // winner, tie
-					mMacroboard[x][y] = winner;
-				} else { // open mini TTT, need to check if playable or not
-					if (!nextMiniOpen || (x == column && y == row)) {
-						// if next board is finished all open boards are playable
-						// else set playable only if its the nextMacroIndex
-						mMacroboard[x][y] = -1;
+				if (macroField[x][y] < 0 || (macroField[x][y] == 0 && !isMicroFull(x * 3, y * 3))) {
+					if (!nextMicroPlayable || (x == column && y == row)) {
+						// next micro field finished, set all open micro fields to be playable
+						// else set playable only if its the nextMicroIndex
+						macroField[x][y] = -1;
 					} else {
-						mMacroboard[x][y] = 0;
+						macroField[x][y] = 0;
 					}
 				}
 			}
 		}
 	}
 	
-	public void undo() {
-		// undo move
-		Move lastMove = moves.remove(moves.size() - 1);
-		mBoard[lastMove.column][lastMove.row] = 0;
-		// restore original macro state
-		MacroState lastMacro = macroStates.remove(macroStates.size() - 1);
-		lastMacro.restoreState(mMacroboard);
+	private boolean isMicroFull(int topLeftColumn, int topLeftRow) {
+		if (field[topLeftColumn][topLeftRow] == 0 || 
+			field[topLeftColumn + 1][topLeftRow] == 0 || 
+			field[topLeftColumn + 2][topLeftRow] == 0 ||
+			field[topLeftColumn][topLeftRow + 1] == 0 || 
+			field[topLeftColumn + 1][topLeftRow + 1] == 0 || 
+			field[topLeftColumn + 2][topLeftRow + 1] == 0 ||
+			field[topLeftColumn][topLeftRow + 2] == 0 || 
+			field[topLeftColumn + 1][topLeftRow + 2] == 0 || 
+			field[topLeftColumn + 2][topLeftRow + 2] == 0) {
+			return false;
+		}
+		return true;
 	}
 	
-	/** Removes last saved move. Does NOT undo the move **/
-	public void pop() {
-		moves.remove(moves.size() - 1);
-		macroStates.remove(macroStates.size() - 1);
-	}
-	
-	public int[][] getMacroboard() {
-		return mMacroboard;
-	}
-	
-	public int[][] getBoard() {
-		return mBoard;
-	}
-	
-	private int getMiniWinner(int topLeftColumn, int topLeftRow) {
-		int m00 = mBoard[topLeftColumn][topLeftRow];
-		int m10 = mBoard[topLeftColumn + 1][topLeftRow];
-		int m20 = mBoard[topLeftColumn + 2][topLeftRow];
-		int m01 = mBoard[topLeftColumn][topLeftRow + 1];
-		int m11 = mBoard[topLeftColumn + 1][topLeftRow + 1];
-		int m21 = mBoard[topLeftColumn + 2][topLeftRow + 1];
-		int m02 = mBoard[topLeftColumn][topLeftRow + 2];
-		int m12 = mBoard[topLeftColumn + 1][topLeftRow + 2];
-		int m22 = mBoard[topLeftColumn + 2][topLeftRow + 2];
+	private int getMicroWinner(int topLeftColumn, int topLeftRow) {
+		int m00 = field[topLeftColumn][topLeftRow];
+		int m10 = field[topLeftColumn + 1][topLeftRow];
+		int m20 = field[topLeftColumn + 2][topLeftRow];
+		int m01 = field[topLeftColumn][topLeftRow + 1];
+		int m11 = field[topLeftColumn + 1][topLeftRow + 1];
+		int m21 = field[topLeftColumn + 2][topLeftRow + 1];
+		int m02 = field[topLeftColumn][topLeftRow + 2];
+		int m12 = field[topLeftColumn + 1][topLeftRow + 2];
+		int m22 = field[topLeftColumn + 2][topLeftRow + 2];
     	
 		/* Check for vertical wins */
         if (m00 > 0 && m00 == m01 && m01 == m02) return m00;
@@ -369,7 +326,7 @@ public class Field {
 		/* Check for backward diagonal wins - \ */
 		if (m00 > 0 && m00 == m11 && m11 == m22) return m00;
 		
-		// check if the board is full
+		// check if the field is open
 		if (m00 == 0 || m10 == 0 || m20 == 0 ||
 				m01 == 0 || m11 == 0 || m21 == 0 ||
 				m02 == 0 || m12 == 0 || m22 == 0) {
@@ -378,5 +335,28 @@ public class Field {
 		
 		// must be a tie
         return 0;
+	}
+	
+	public void undo() {
+		// undo move
+		Move lastMove = moves.pop();
+		field[lastMove.column][lastMove.row] = 0;
+		// restore original micro state
+		MacroState lastMacro = macroStates.pop();
+		lastMacro.restoreState(macroField);
+	}
+	
+	/** Removes last saved move. Does NOT undo the move **/
+	public void pop() {
+		moves.pop();
+		macroStates.pop();
+	}
+	
+	public int[][] getMacroField() {
+		return macroField;
+	}
+	
+	public int[][] getField() {
+		return field;
 	}
 }

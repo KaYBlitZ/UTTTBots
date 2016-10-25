@@ -2,7 +2,6 @@ package com.kayblitz.uttt.bot.mcts;
 
 import com.kayblitz.uttt.Bot;
 import com.kayblitz.uttt.BotParser;
-import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
 public class MCTSBot extends Bot {
@@ -29,8 +28,6 @@ public class MCTSBot extends Bot {
 	public MCTSBot(int treeType, int simulationType) {
 		this.treeType = treeType;
 		this.simulationType = simulationType;
-		if (simulationType == Simulation.WIN_FIRST_HEURISTIC_RAVE)
-			System.err.println("WARNING: Using heuristic playout. This can result in significant performance decrease.");
 	}
 	
 	public long getElapsedTime() {
@@ -38,12 +35,12 @@ public class MCTSBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int moveNum) {
+	public Move makeMove(int timebank) {
 		startTime = System.currentTimeMillis();
-		if (moveNum == 1)
+		if (field.getMoveNum() == 1)
 			return new Move(4, 4); // best first move
-		int size = field.getAvailableMoves().size();
-		if (moveNum < 30) {
+		int size = field.getNumAvailableMoves();
+		if (field.getMoveNum() < 30) {
 			if (size < 4) {
 				limit = 500L;
 			} else if (size < 7) {
@@ -71,11 +68,13 @@ public class MCTSBot extends Bot {
 		sb.append(String.format("Timebank %d, Limit %d\n", timebank, limit));
 		MCTree tree = null;
 		if (treeType == MCTree.UCT_TREE) {
-			tree = new UCTTree(field, sb, simulationType, botId, opponentId);
+			tree = new UCTTree(field, sb, MCTree.UCT_TREE, simulationType, botId, opponentId);
+		} else if (treeType == MCTree.UCT_HEURISTIC_TREE) {
+			tree = new UCTHeuristicTree(field, sb, MCTree.UCT_HEURISTIC_TREE, simulationType, botId, opponentId);
 		} else if (treeType == MCTree.RAVE_TREE) {
-			tree = new RAVETree(field, sb, simulationType, botId, opponentId);
+			tree = new RAVETree(field, sb, MCTree.RAVE_TREE, simulationType, botId, opponentId);
 		} else if (treeType == MCTree.RAVE_HEURISTIC_TREE) {
-			tree = new RAVEHeuristicTree(field, sb, simulationType, botId, opponentId);
+			tree = new RAVEHeuristicTree(field, sb, MCTree.RAVE_HEURISTIC_TREE, simulationType, botId, opponentId);
 		}
 		
 		int iterations = 0;
@@ -84,7 +83,10 @@ public class MCTSBot extends Bot {
 			iterations++;
 		}
 		Move bestMove = tree.getBestMove();
-		sb.append("Iterations " + iterations + '\n');
+		tree.log();
+		float elapsedSeconds = getElapsedTime() / 1000f;
+		sb.append(String.format("Iterations %d, Elapsed %.3f\n", iterations, elapsedSeconds));
+		sb.append("Iterations per second " + (int) (iterations / elapsedSeconds) + '\n');
 		System.err.println(sb.toString());
 		
 		return bestMove;

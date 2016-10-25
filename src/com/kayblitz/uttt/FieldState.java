@@ -10,17 +10,13 @@ public class FieldState {
 	
 	public void saveState(int[][] field) {
 		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				fieldState[i][j] = field[i][j];
-			}
+			System.arraycopy(field[i], 0, fieldState[i], 0, 9);
 		}
 	}
 	
 	public void restoreState(int[][] field) {
 		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				field[i][j] = fieldState[i][j];
-			}
+			System.arraycopy(fieldState[i], 0, field[i], 0, 9);
 		}
 	}
 }

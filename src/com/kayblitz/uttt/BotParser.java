@@ -33,10 +33,8 @@ import com.kayblitz.uttt.bot.mcts.Simulation;
  */
 
 public class BotParser {
-
 	private final Scanner scanner;
 	private final Bot bot;
-	private Field field;
 
 	public BotParser(Bot bot) {
 		this.scanner = new Scanner(System.in);
@@ -44,22 +42,15 @@ public class BotParser {
 	}
 
 	public void run() {
-		field = new Field();
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
 			if (line.length() == 0)
 				continue;
 			
 			String[] parts = line.split(" ");
-			if(parts[0].equals("settings")) {
-				if (parts[1].equals("your_botid")) {
-					int botId = Integer.parseInt(parts[2]);
-					bot.botId = botId;
-					bot.opponentId = botId == 1 ? 2 : 1;
-				}
-			} else if(parts[0].equals("update")) { /* new game data */
+			if (parts[0].equals("update")) { /* new game data */
 				if (parts[1].equals("game")) {
-					field.parseGameData(parts[2], parts[3]);
+					bot.field.parseGameData(parts[2], parts[3]);
 				} else if (parts[1].equals("rave")) {
 					RAVETree.EXPLORATION_CONSTANT = Double.parseDouble(parts[2]);
 					RAVETree.RAVE_CONSTANT = Double.parseDouble(parts[3]);
@@ -68,13 +59,19 @@ public class BotParser {
 					RAVEHeuristicNode.UCT_CONFIDENCE = Double.parseDouble(parts[3]);
 					RAVEHeuristicNode.AMAF_CONFIDENCE = Double.parseDouble(parts[4]);
 				} else if (parts[1].equals("simulationconstants")) {
-					Simulation.RAVE_HEURISTIC_SIMULATION = Integer.parseInt(parts[2]);
+					Simulation.UCT_EPT_MAX_MOVES = Integer.parseInt(parts[2]);
+					Simulation.EPT_WIN_LOSS_THRESHOLD = Double.parseDouble(parts[3]);
 				}
-			} else if(parts[0].equals("action")) {
+			} else if (parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
 					int timebank = Integer.parseInt(parts[2]);
-					Move move = bot.makeMove(field, timebank, field.getMoveNum());
+					Move move = bot.makeMove(timebank);
 					System.out.println("place_move " + move.column + " " + move.row);
+				}
+			} else if (parts[0].equals("settings")) {
+				if (parts[1].equals("your_botid")) {
+					bot.botId = Integer.parseInt(parts[2]);
+					bot.opponentId = bot.botId == 1 ? 2 : 1;
 				}
 			} else { 
 				System.out.println("Unknown command: " + line);

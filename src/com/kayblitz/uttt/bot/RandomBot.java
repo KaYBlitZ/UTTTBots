@@ -21,7 +21,6 @@ import java.util.Random;
 
 import com.kayblitz.uttt.Bot;
 import com.kayblitz.uttt.BotParser;
-import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
 /**
@@ -48,7 +47,7 @@ public class RandomBot extends Bot {
      * @return The column where the turn was made.
      */
 	@Override
-	public Move makeMove(Field field, int timebank, int moveNum) {
+	public Move makeMove(int timebank) {
 		ArrayList<Move> moves = field.getAvailableMoves();
 		Move move = moves.get(random.nextInt(moves.size())); /* get random move from available moves */
 		return move;

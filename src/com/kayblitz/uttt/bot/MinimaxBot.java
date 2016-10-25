@@ -35,9 +35,9 @@ public class MinimaxBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int moveNum) {		
+	public Move makeMove(int timebank) {		
 		System.err.println("Timebank: " + timebank);
-		if (moveNum == 1)
+		if (field.getMoveNum() == 1)
 			return new Move(4, 4); // best first move
 		Random rand = new Random(System.currentTimeMillis());
 		double bestHeuristic = Integer.MIN_VALUE;

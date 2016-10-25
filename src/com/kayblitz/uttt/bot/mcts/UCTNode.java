@@ -17,21 +17,23 @@ public class UCTNode {
 	public Move a;
 	public int n; // num of visits
 	public double q; // total reward
+	public int numChildren;
 	
 	private FieldState fieldState;
 	private MacroState macroState;
 	
-	public UCTNode(Move move, int nextMoveBotId, int winner, UCTNode parent) {
-		this(move.column, move.row, nextMoveBotId, winner, parent);
+	public UCTNode(Move move, int nextMoveBotId, int winner, UCTNode parent, int numChildren) {
+		this(move.column, move.row, nextMoveBotId, winner, parent, numChildren);
 	}
-	public UCTNode(int x, int y, int nextMoveBotId, int winner, UCTNode parent) {
+	public UCTNode(int x, int y, int nextMoveBotId, int winner, UCTNode parent, int numChildren) {
 		a = new Move(x, y);
 		this.nextMoveBotId = nextMoveBotId;
 		this.winner = winner;
 		this.parent = parent;
 		fieldState = new FieldState();
 		macroState = new MacroState();
-		children = new ArrayList<UCTNode>(9);
+		children = new ArrayList<UCTNode>(numChildren);
+		this.numChildren = numChildren;
 	}
 	
 	/** Called during backpropagation, result is either WIN(1), TIE(0.5), LOSS(0) */
@@ -49,13 +51,13 @@ public class UCTNode {
 	}
 	
 	public void saveState(Field field) {
-		fieldState.saveState(field.getBoard());
-		macroState.saveState(field.getMacroboard());
+		fieldState.saveState(field.getField());
+		macroState.saveState(field.getMacroField());
 	}
 	
 	public void restoreState(Field field) {
-		fieldState.restoreState(field.getBoard());
-		macroState.restoreState(field.getMacroboard());
+		fieldState.restoreState(field.getField());
+		macroState.restoreState(field.getMacroField());
 	}
 	
 	/** Returns the ratio reward/visits */

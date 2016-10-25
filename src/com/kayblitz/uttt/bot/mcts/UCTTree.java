@@ -1,18 +1,16 @@
 package com.kayblitz.uttt.bot.mcts;
 
-import java.util.ArrayList;
-
 import com.kayblitz.uttt.Field;
 import com.kayblitz.uttt.Move;
 
 public class UCTTree extends MCTree {
 	
-	private static final double EXPLORATION_CONSTANT = 0.5;
-	private UCTNode root;
+	protected static final double EXPLORATION_CONSTANT = 0.5;
+	protected UCTNode root;
 	
-	public UCTTree(Field field, StringBuilder sb, int simulationType, int botId, int opponentId) {
-		super(field, sb, simulationType, botId, opponentId);
-		root = new UCTNode(-1, -1, botId, -1, null);
+	public UCTTree(Field field, StringBuilder sb, int treeType, int simulationType, int botId, int opponentId) {
+		super(field, sb, treeType, simulationType, botId, opponentId);
+		root = new UCTNode(-1, -1, botId, -1, null, field.getNumAvailableMoves());
 		root.saveState(field);
 	}
 	
@@ -40,21 +38,19 @@ public class UCTTree extends MCTree {
 			if (selected.isTerminal())
 				return selected; // check to see if we have reached a finished state
 			
-			selected.restoreState(field);
-			ArrayList<Move> moves = field.getAvailableMoves();
-			if (selected.children.size() == moves.size()) {
-				// If the next bot's move has a chance to win game, select that move since that bot WILL
-				// ALWAYS choose that winning moving instead of selecting any other move
-				for (UCTNode child : selected.children) {
-					if (child.winner == selected.nextMoveBotId) return child;
-				}
-				
+			if (selected.children.size() == selected.numChildren) {
 				// children all explored at least once, explore deeper using UCT
 				UCTNode selectedChild = null;
 				double bestValue = Integer.MIN_VALUE;
 				double constant = Math.log(selected.n);
-				// select the child with the highest UCT value
+				
 				for (UCTNode child : selected.children) {
+					// If the next bot's move has a chance to win game, select that move since that bot WILL
+					// ALWAYS choose that winning moving instead of selecting any other move
+					if (child.winner == selected.nextMoveBotId)
+						return child;
+					
+					// select the child with the highest UCT value
 					double value = child.getAverageReward() + EXPLORATION_CONSTANT * Math.sqrt(constant/child.n);
 					if (Double.compare(value, bestValue) > 0) {
 						bestValue = value;
@@ -75,30 +71,12 @@ public class UCTTree extends MCTree {
 	 * Adds an unexplored child from the selected node and returns the child. The state of the Field will 
 	 * be that of the newly created child. The passed in node must not be terminal.
 	 */
-	private UCTNode expand(UCTNode selected) {
-		if (selected.isTerminal()) throw new RuntimeException("MCTS expand: node is terminal");
+	protected UCTNode expand(UCTNode selected) {
 		selected.restoreState(field); // restore state of node
-		ArrayList<Move> moves = field.getAvailableMoves();
-		
-		Move action = null;
-		int index = rand.nextInt(moves.size()); // initial index at random
-		// increment until unexplored child found, this guarantees that a child will be found 
-		// in O(n) time rather than just continuously iterating while selecting a child at random
-		// which may continue indefinitely
-		while (true) {
-			action = moves.get(index);
-			boolean unique = true;
-			for (UCTNode child : selected.children) {
-				if (action.column == child.a.column && action.row == child.a.row) {
-					unique = false;
-					break;
-				}
-			}
-			if (unique) break;
-			if (++index == moves.size()) index = 0; // wrap to beginning
-		}
-		field.makeMove(action, selected.nextMoveBotId, false); 
-		UCTNode child = new UCTNode(action, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner(), selected);
+		Move move = field.getAvailableMoves().get(selected.children.size());
+		field.makeMove(move, selected.nextMoveBotId, false); 
+		UCTNode child = new UCTNode(move, selected.nextMoveBotId == 1 ? 2 : 1, field.getWinner(), 
+				selected, field.getNumAvailableMoves());
 		child.saveState(field);
 		selected.children.add(child); // add to parent's array of children
 		
@@ -114,6 +92,8 @@ public class UCTTree extends MCTree {
 			return Simulation.simulateRandom(field, expanded, botId, opponentId);
 		case Simulation.WIN_FIRST_RANDOM:
 			return Simulation.simulateWinFirstRandom(field, expanded, botId, opponentId);
+		case Simulation.ADVANCED_OPTIMIZED_EPT:
+			return Simulation.simulateAdvancedOptimizedEPT(field, expanded, botId, opponentId);
 		default:
 			throw new RuntimeException("Invalid UCT simulation type");
 		}
@@ -133,10 +113,7 @@ public class UCTTree extends MCTree {
 	 * reward as the most visited node is the more promising one.
 	 */
 	@Override
-	public Move getBestMove() {
-		if (root.children.size() == 0)
-			throw new RuntimeException("MCTS: root node has no children!");
-		
+	public Move getBestMove() {		
 		UCTNode maxRobustChild = null;
 		double maxRobustQ = Integer.MIN_VALUE;
 		int maxRobustN = Integer.MIN_VALUE;
@@ -178,5 +155,15 @@ public class UCTTree extends MCTree {
 			sb.append(String.format("Robust child returned %d, %d\n", robustChild.a.column, robustChild.a.row));
 			return robustChild.a;
 		}
+	}
+
+	@Override
+	public void log() {
+		/*if (treeType == MCTree.UCT_HEURISTIC_TREE) {
+			sb.append(String.format("Collisions %d, Uses %d, Total Collisions %d, Total Uses %d\n", 
+					UCTHeuristicNode.TRANSPOSITION_TABLE.getCurrentCollisions(), UCTHeuristicNode.TRANSPOSITION_TABLE.getCurrentUses(),
+					UCTHeuristicNode.TRANSPOSITION_TABLE.getTotalCollisions(), UCTHeuristicNode.TRANSPOSITION_TABLE.getTotalUses()));
+			UCTHeuristicNode.TRANSPOSITION_TABLE.clearCurrentLog();
+		}*/
 	}
 }

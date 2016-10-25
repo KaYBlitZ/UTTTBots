@@ -39,16 +39,17 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 	}
 
 	@Override
-	public Move makeMove(Field field, int timebank, int moveNum) {
+	public Move makeMove(int timebank) {
 		startTime = System.currentTimeMillis();
-		if (moveNum == 1)
+		if (field.getMoveNum() == 1)
 			return new Move(4, 4); // best first move
 		Random rand = new Random(System.currentTimeMillis());
 		// this function acts as the bot's first maximizing node
 		ArrayList<Move> moves = field.getAvailableMoves();
 		
-		if ((type == Evaluation.SIMPLE && moveNum < 20) || 
-				((type == Evaluation.CONNECTING || type == Evaluation.ADVANCED || type == Evaluation.ADVANCED_OPTIMIZED) && moveNum < 15)) {
+		if ((type == Evaluation.SIMPLE && field.getMoveNum() < 20) || 
+				((type == Evaluation.CONNECTING || type == Evaluation.ADVANCED || type == Evaluation.ADVANCED_OPTIMIZED) && 
+						field.getMoveNum() < 15)) {
 			// heuristics mostly the same (insignificant), dont waste timebank
 			limit = 500L;
 		} else {
