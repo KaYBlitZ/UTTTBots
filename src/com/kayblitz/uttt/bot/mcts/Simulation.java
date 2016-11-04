@@ -17,9 +17,10 @@ public class Simulation {
 	
 	public static final int RANDOM = 0;
 	public static final int WIN_FIRST_RANDOM = 1;
-	public static final int ADVANCED_OPTIMIZED_EPT = 2;
-	public static final int WIN_FIRST_RANDOM_RAVE = 3;
-	public static final int ADVANCED_OPTIMIZED_EPT_RAVE = 4;
+	public static final int RANDOM_EPT = 2;
+	public static final int WIN_FIRST_RANDOM_EPT = 3;
+	public static final int WIN_FIRST_RANDOM_RAVE = 4;
+	public static final int RANDOM_EPT_RAVE = 5;
 	
 	public static int UCT_EPT_MAX_MOVES = 60;
 	public static int RAVE_EPT_MAX_MOVES = 60;
@@ -135,7 +136,7 @@ public class Simulation {
 		}
 	}
 	
-	public static double simulateAdvancedOptimizedEPT(Field field, UCTNode expanded, int botId, int opponentId) {
+	public static double simulateRandomEPT(Field field, UCTNode expanded, int botId, int opponentId) {
 		expanded.restoreState(field);
 		int winner = expanded.winner;
 		int currentId = expanded.nextMoveBotId;
@@ -166,7 +167,50 @@ public class Simulation {
 		}
 	}
 	
-	public static double simulateAdvancedOptimizedEPTRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
+	public static double simulateWinFirstRandomEPT(Field field, UCTNode expanded, int botId, int opponentId) {
+		expanded.restoreState(field);
+		int winner = expanded.winner;
+		int currentId = expanded.nextMoveBotId;
+		int numMoves = 0;
+		while (winner < 0) {
+			ArrayList<Move> moves = field.getAvailableMoves();
+			// win first
+			for (Move move : moves) {
+				field.makeMove(move, currentId, true);
+				winner = field.getWinner();
+				if (winner > 0) {
+					field.pop();
+					return currentId == botId ? WIN : LOSS;
+				} else {
+					field.undo();
+				}
+			}
+			// random
+			Move move = moves.get(rand.nextInt(moves.size()));
+			field.makeMove(move, currentId, false);
+			if (++numMoves == UCT_EPT_MAX_MOVES) {
+				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
+					return WIN;
+				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {
+					return LOSS;
+				} else {
+					return TIE;
+				}
+			}
+			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
+		}
+		if (winner == botId) {
+			return WIN;
+		} else if (winner == 0) {
+			return TIE;
+		} else {
+			return LOSS;
+		}
+	}
+	
+	public static double simulateRandomEPTRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
 			ArrayList<Move> opponentMoves, int botId, int opponentId) {
 		expanded.restoreState(field);
 		int winner = expanded.winner;
