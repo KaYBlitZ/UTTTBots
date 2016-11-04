@@ -98,6 +98,8 @@ public class RAVETree extends MCTree {
 		switch (simulationType) {
 		case Simulation.WIN_FIRST_RANDOM_RAVE:
 			return Simulation.simulateWinFirstRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
+		case Simulation.ADVANCED_OPTIMIZED_EPT_RAVE:
+			return Simulation.simulateAdvancedOptimizedEPTRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
 		default:
 			throw new RuntimeException("Invalid RAVE simulation type");
 		}

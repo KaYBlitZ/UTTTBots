@@ -17,10 +17,12 @@ public class Simulation {
 	
 	public static final int RANDOM = 0;
 	public static final int WIN_FIRST_RANDOM = 1;
-	public static final int WIN_FIRST_RANDOM_RAVE = 2;
-	public static final int ADVANCED_OPTIMIZED_EPT = 3;
+	public static final int ADVANCED_OPTIMIZED_EPT = 2;
+	public static final int WIN_FIRST_RANDOM_RAVE = 3;
+	public static final int ADVANCED_OPTIMIZED_EPT_RAVE = 4;
 	
 	public static int UCT_EPT_MAX_MOVES = 60;
+	public static int RAVE_EPT_MAX_MOVES = 60;
 	public static double EPT_WIN_LOSS_THRESHOLD = 0.3;
 	// values are recommended to be in the range [0,1]
 	private static final double WIN = 1;
@@ -111,8 +113,8 @@ public class Simulation {
 			// no winning move, just play a random move
 			Move move = moves.get(rand.nextInt(moves.size()));
 			field.makeMove(move, currentId, false);
-			winner = field.getWinner();
 			addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
+			winner = field.getWinner();
 			currentId = currentId == 1 ? 2 : 1;
 		}
 		if (winner == botId) {
@@ -154,6 +156,39 @@ public class Simulation {
 					return TIE;
 				}
 			}
+		}
+		if (winner == botId) {
+			return WIN;
+		} else if (winner == 0) {
+			return TIE;
+		} else {
+			return LOSS;
+		}
+	}
+	
+	public static double simulateAdvancedOptimizedEPTRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
+			ArrayList<Move> opponentMoves, int botId, int opponentId) {
+		expanded.restoreState(field);
+		int winner = expanded.winner;
+		int currentId = expanded.nextMoveBotId;
+		int numMoves = 0;
+		while (winner < 0) {
+			ArrayList<Move> moves = field.getAvailableMoves();
+			Move move = moves.get(rand.nextInt(moves.size()));
+			field.makeMove(move, currentId, false);
+			addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
+			if (++numMoves == RAVE_EPT_MAX_MOVES) {
+				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
+					return WIN;
+				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {
+					return LOSS;
+				} else {
+					return TIE;
+				}
+			}
+			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
 		}
 		if (winner == botId) {
 			return WIN;
