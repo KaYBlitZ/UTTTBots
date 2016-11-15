@@ -28,10 +28,12 @@ public class MinimaxBot extends Bot {
 	}
 	
 	private int depth, type;
+	private Random rand;
 	
 	public MinimaxBot(int depth, int type) {
 		this.depth = depth;
 		this.type = type;
+		rand = new Random(System.currentTimeMillis());
 	}
 
 	@Override
@@ -39,7 +41,6 @@ public class MinimaxBot extends Bot {
 		System.err.println("Timebank: " + timebank);
 		if (field.getMoveNum() == 1)
 			return new Move(4, 4); // best first move
-		Random rand = new Random(System.currentTimeMillis());
 		double bestHeuristic = Integer.MIN_VALUE;
 		Move bestMove = null;
 		
@@ -112,6 +113,8 @@ public class MinimaxBot extends Bot {
 				return Evaluation.evaluateFieldAdvanced(field, botId, opponentId);
 			case Evaluation.ADVANCED_OPTIMIZED:
 				return Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+			case Evaluation.COMPREHENSIVE:
+				return Evaluation.evaluateFieldComprehensive(field, botId, opponentId);
 			default:
 				throw new RuntimeException("Invalid heuristic evaluation function");
 			}

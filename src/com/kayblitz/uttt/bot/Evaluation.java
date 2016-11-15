@@ -8,6 +8,7 @@ public class Evaluation {
 	public static final int CONNECTING = 1;
 	public static final int ADVANCED = 2;
 	public static final int ADVANCED_OPTIMIZED = 3;
+	public static final int COMPREHENSIVE = 4;
 	
 	public static final int WIN = 999;
 	public static final int TIE = 0;
@@ -763,10 +764,6 @@ public class Evaluation {
 		for (int i = 0; i < 9; i++) {
 			heuristic += evaluateMicroFieldAdvancedOptimized(field, micro, i, botId, opponentId);
 		}
-		/*if (Double.compare(heuristic, MAX) > 0)
-			MAX = heuristic;
-		if (Double.compare(heuristic, MIN) < 0)
-			MIN = heuristic;*/
 		return heuristic;
 	}
 	
@@ -929,6 +926,682 @@ public class Evaluation {
 			heuristic += MICRO_TWO_IN_A_ROW_OPTIMIZED;
 		} else if (opponentConnected > 1 && botConnected == 0) {
 			heuristic -= MICRO_TWO_IN_A_ROW_OPTIMIZED;
+		}
+		return heuristic;
+	}
+	
+	/**
+	 * Comprehensive Evaluation
+	 */
+	
+	private static double MACRO_TWO_IN_A_ROW_COMP = 1.481980523838704;
+	private static double MACRO_MIDDLE_COMP = 1.140677320506129;
+	private static double MACRO_CORNER_COMP = 1.4066889502905648;
+	private static double MACRO_SIDE_COMP = 0.9989940865792346;
+	
+	private static double MICRO_TWO_IN_A_ROW_COMP = 0.1993119083419216;
+	
+	private static double MICRO_MIDDLE_MIDDLE_COMP = 0.9989940865792346;
+	private static double MICRO_MIDDLE_CORNER_COMP = 0.9989940865792346;
+	private static double MICRO_MIDDLE_SIDE_COMP = 0.9989940865792346;
+	
+	private static double MICRO_CORNER_MIDDLE_COMP = 0.9989940865792346;
+	private static double MICRO_CORNER_CORNER_COMP = 0.9989940865792346;
+	private static double MICRO_CORNER_SIDE_COMP = 0.9989940865792346;
+	
+	private static double MICRO_SIDE_MIDDLE_COMP = 0.9989940865792346;
+	private static double MICRO_SIDE_CORNER_COMP = 0.9989940865792346;
+	private static double MICRO_SIDE_SIDE_COMP = 0.9989940865792346;
+	
+	/**
+	 * Same as simple, but also gives more points for having two in-a-row markers.
+	 */
+	public static double evaluateFieldComprehensive(Field field, int botId, int opponentId) {
+		double heuristic = 0;
+		int botConnected, opponentConnected;
+		int[][] macroField = field.getMacroField();
+		// check field positions
+		// middle
+		if (macroField[1][1] == botId) {
+			heuristic += MACRO_MIDDLE_COMP;
+		} else if (macroField[1][1] == opponentId) {
+			heuristic -= MACRO_MIDDLE_COMP;
+		}
+		// corners
+		if (macroField[0][0] == botId) {
+			heuristic += MACRO_CORNER_COMP;
+		} else if (macroField[0][0] == opponentId) {
+			heuristic -= MACRO_CORNER_COMP;
+		}
+		if (macroField[2][0] == botId) {
+			heuristic += MACRO_CORNER_COMP;
+		} else if (macroField[2][0] == opponentId) {
+			heuristic -= MACRO_CORNER_COMP;
+		}
+		if (macroField[0][2] == botId) {
+			heuristic += MACRO_CORNER_COMP;
+		} else if (macroField[0][2] == opponentId) {
+			heuristic -= MACRO_CORNER_COMP;
+		}
+		if (macroField[2][2] == botId) {
+			heuristic += MACRO_CORNER_COMP;
+		} else if (macroField[2][2] == opponentId) {
+			heuristic -= MACRO_CORNER_COMP;
+		}
+		// sides
+		if (macroField[1][0] == botId) {
+			heuristic += MACRO_SIDE_COMP;
+		} else if (macroField[1][0] == opponentId) {
+			heuristic -= MACRO_SIDE_COMP;
+		}
+		if (macroField[0][1] == botId) {
+			heuristic += MACRO_SIDE_COMP;
+		} else if (macroField[0][1] == opponentId) {
+			heuristic -= MACRO_SIDE_COMP;
+		}
+		if (macroField[2][1] == botId) {
+			heuristic += MACRO_SIDE_COMP;
+		} else if (macroField[2][1] == opponentId) {
+			heuristic -= MACRO_SIDE_COMP;
+		}
+		if (macroField[1][2] == botId) {
+			heuristic += MACRO_SIDE_COMP;
+		} else if (macroField[1][2] == opponentId) {
+			heuristic -= MACRO_SIDE_COMP;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (macroField[0][row] == botId) {
+				botConnected++;
+			} else if (macroField[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroField[1][row] == botId) {
+				botConnected++;
+			} else if (macroField[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroField[2][row] == botId) {
+				botConnected++;
+			} else if (macroField[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MACRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MACRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (macroField[col][0] == botId) {
+				botConnected++;
+			} else if (macroField[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroField[col][1] == botId) {
+				botConnected++;
+			} else if (macroField[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (macroField[col][2] == botId) {
+				botConnected++;
+			} else if (macroField[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MACRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MACRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (macroField[0][2] == botId) {
+			botConnected++;
+		} else if (macroField[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroField[1][1] == botId) {
+			botConnected++;
+		} else if (macroField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroField[2][0] == botId) {
+			botConnected++;
+		} else if (macroField[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MACRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MACRO_TWO_IN_A_ROW_COMP;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (macroField[0][0] == botId) {
+			botConnected++;
+		} else if (macroField[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroField[1][1] == botId) {
+			botConnected++;
+		} else if (macroField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (macroField[2][2] == botId) {
+			botConnected++;
+		} else if (macroField[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MACRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MACRO_TWO_IN_A_ROW_COMP;
+		}
+		// evaluate micro fields
+		int[][] micro = new int[3][3];
+		heuristic += evaluateMicroMiddleComprehensive(field, micro, botId, opponentId);
+		heuristic += evaluateMicroCornerComprehensive(field, micro, 0, botId, opponentId);
+		heuristic += evaluateMicroCornerComprehensive(field, micro, 2, botId, opponentId);
+		heuristic += evaluateMicroCornerComprehensive(field, micro, 6, botId, opponentId);
+		heuristic += evaluateMicroCornerComprehensive(field, micro, 8, botId, opponentId);
+		heuristic += evaluateMicroSideComprehensive(field, micro, 1, botId, opponentId);
+		heuristic += evaluateMicroSideComprehensive(field, micro, 3, botId, opponentId);
+		heuristic += evaluateMicroSideComprehensive(field, micro, 5, botId, opponentId);
+		heuristic += evaluateMicroSideComprehensive(field, micro, 7, botId, opponentId);
+		return heuristic;
+	}
+	
+	private static double evaluateMicroMiddleComprehensive(Field field, int[][] microField, int botId, int opponentId) {
+		double heuristic = 0;
+		int botConnected, opponentConnected;
+		int[][] mField = field.getField();
+		microField[0][0] = mField[3][3];
+		microField[1][0] = mField[4][3];
+		microField[2][0] = mField[5][3];
+		microField[0][1] = mField[3][4];
+		microField[1][1] = mField[4][4];
+		microField[2][1] = mField[5][4];
+		microField[0][2] = mField[3][5];
+		microField[1][2] = mField[4][5];
+		microField[2][2] = mField[5][5];
+		// check field positions
+		// middle
+		if (microField[1][1] == botId) {
+			heuristic += MICRO_MIDDLE_MIDDLE_COMP;
+		} else if (microField[1][1] == opponentId) {
+			heuristic -= MICRO_MIDDLE_MIDDLE_COMP;
+		}
+		// corners
+		if (microField[0][0] == botId) {
+			heuristic += MICRO_MIDDLE_CORNER_COMP;
+		} else if (microField[0][0] == opponentId) {
+			heuristic -= MICRO_MIDDLE_CORNER_COMP;
+		}
+		if (microField[2][0] == botId) {
+			heuristic += MICRO_MIDDLE_CORNER_COMP;
+		} else if (microField[2][0] == opponentId) {
+			heuristic -= MICRO_MIDDLE_CORNER_COMP;
+		}
+		if (microField[0][2] == botId) {
+			heuristic += MICRO_MIDDLE_CORNER_COMP;
+		} else if (microField[0][2] == opponentId) {
+			heuristic -= MICRO_MIDDLE_CORNER_COMP;
+		}
+		if (microField[2][2] == botId) {
+			heuristic += MICRO_MIDDLE_CORNER_COMP;
+		} else if (microField[2][2] == opponentId) {
+			heuristic -= MICRO_MIDDLE_CORNER_COMP;
+		}
+		// sides
+		if (microField[1][0] == botId) {
+			heuristic += MICRO_MIDDLE_SIDE_COMP;
+		} else if (microField[1][0] == opponentId) {
+			heuristic -= MICRO_MIDDLE_SIDE_COMP;
+		}
+		if (microField[0][1] == botId) {
+			heuristic += MICRO_MIDDLE_SIDE_COMP;
+		} else if (microField[0][1] == opponentId) {
+			heuristic -= MICRO_MIDDLE_SIDE_COMP;
+		}
+		if (microField[2][1] == botId) {
+			heuristic += MICRO_MIDDLE_SIDE_COMP;
+		} else if (microField[2][1] == opponentId) {
+			heuristic -= MICRO_MIDDLE_SIDE_COMP;
+		}
+		if (microField[1][2] == botId) {
+			heuristic += MICRO_MIDDLE_SIDE_COMP;
+		} else if (microField[1][2] == opponentId) {
+			heuristic -= MICRO_MIDDLE_SIDE_COMP;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[0][row] == botId) {
+				botConnected++;
+			} else if (microField[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[1][row] == botId) {
+				botConnected++;
+			} else if (microField[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[2][row] == botId) {
+				botConnected++;
+			} else if (microField[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[col][0] == botId) {
+				botConnected++;
+			} else if (microField[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][1] == botId) {
+				botConnected++;
+			} else if (microField[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][2] == botId) {
+				botConnected++;
+			} else if (microField[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][2] == botId) {
+			botConnected++;
+		} else if (microField[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][0] == botId) {
+			botConnected++;
+		} else if (microField[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][0] == botId) {
+			botConnected++;
+		} else if (microField[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][2] == botId) {
+			botConnected++;
+		} else if (microField[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+		}
+		return heuristic;
+	}
+	
+	private static double evaluateMicroCornerComprehensive(Field field, int[][] microField, int miniIndex, int botId, int opponentId) {
+		double heuristic = 0;
+		int botConnected, opponentConnected;
+		int topLeftColumn = (miniIndex % 3) * 3;
+		int topLeftRow = (miniIndex / 3) * 3;
+		int[][] mField = field.getField();
+		microField[0][0] = mField[topLeftColumn][topLeftRow];
+		microField[1][0] = mField[topLeftColumn + 1][topLeftRow];
+		microField[2][0] = mField[topLeftColumn + 2][topLeftRow];
+		microField[0][1] = mField[topLeftColumn][topLeftRow + 1];
+		microField[1][1] = mField[topLeftColumn + 1][topLeftRow + 1];
+		microField[2][1] = mField[topLeftColumn + 2][topLeftRow + 1];
+		microField[0][2] = mField[topLeftColumn][topLeftRow + 2];
+		microField[1][2] = mField[topLeftColumn + 1][topLeftRow + 2];
+		microField[2][2] = mField[topLeftColumn + 2][topLeftRow + 2];
+		// check field positions
+		// middle
+		if (microField[1][1] == botId) {
+			heuristic += MICRO_CORNER_MIDDLE_COMP;
+		} else if (microField[1][1] == opponentId) {
+			heuristic -= MICRO_CORNER_MIDDLE_COMP;
+		}
+		// corners
+		if (microField[0][0] == botId) {
+			heuristic += MICRO_CORNER_CORNER_COMP;
+		} else if (microField[0][0] == opponentId) {
+			heuristic -= MICRO_CORNER_CORNER_COMP;
+		}
+		if (microField[2][0] == botId) {
+			heuristic += MICRO_CORNER_CORNER_COMP;
+		} else if (microField[2][0] == opponentId) {
+			heuristic -= MICRO_CORNER_CORNER_COMP;
+		}
+		if (microField[0][2] == botId) {
+			heuristic += MICRO_CORNER_CORNER_COMP;
+		} else if (microField[0][2] == opponentId) {
+			heuristic -= MICRO_CORNER_CORNER_COMP;
+		}
+		if (microField[2][2] == botId) {
+			heuristic += MICRO_CORNER_CORNER_COMP;
+		} else if (microField[2][2] == opponentId) {
+			heuristic -= MICRO_CORNER_CORNER_COMP;
+		}
+		// sides
+		if (microField[1][0] == botId) {
+			heuristic += MICRO_CORNER_SIDE_COMP;
+		} else if (microField[1][0] == opponentId) {
+			heuristic -= MICRO_CORNER_SIDE_COMP;
+		}
+		if (microField[0][1] == botId) {
+			heuristic += MICRO_CORNER_SIDE_COMP;
+		} else if (microField[0][1] == opponentId) {
+			heuristic -= MICRO_CORNER_SIDE_COMP;
+		}
+		if (microField[2][1] == botId) {
+			heuristic += MICRO_CORNER_SIDE_COMP;
+		} else if (microField[2][1] == opponentId) {
+			heuristic -= MICRO_CORNER_SIDE_COMP;
+		}
+		if (microField[1][2] == botId) {
+			heuristic += MICRO_CORNER_SIDE_COMP;
+		} else if (microField[1][2] == opponentId) {
+			heuristic -= MICRO_CORNER_SIDE_COMP;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[0][row] == botId) {
+				botConnected++;
+			} else if (microField[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[1][row] == botId) {
+				botConnected++;
+			} else if (microField[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[2][row] == botId) {
+				botConnected++;
+			} else if (microField[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[col][0] == botId) {
+				botConnected++;
+			} else if (microField[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][1] == botId) {
+				botConnected++;
+			} else if (microField[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][2] == botId) {
+				botConnected++;
+			} else if (microField[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][2] == botId) {
+			botConnected++;
+		} else if (microField[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][0] == botId) {
+			botConnected++;
+		} else if (microField[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][0] == botId) {
+			botConnected++;
+		} else if (microField[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][2] == botId) {
+			botConnected++;
+		} else if (microField[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+		}
+		return heuristic;
+	}
+	
+	private static double evaluateMicroSideComprehensive(Field field, int[][] microField, int miniIndex, int botId, int opponentId) {
+		double heuristic = 0;
+		int botConnected, opponentConnected;
+		int topLeftColumn = (miniIndex % 3) * 3;
+		int topLeftRow = (miniIndex / 3) * 3;
+		int[][] mField = field.getField();
+		microField[0][0] = mField[topLeftColumn][topLeftRow];
+		microField[1][0] = mField[topLeftColumn + 1][topLeftRow];
+		microField[2][0] = mField[topLeftColumn + 2][topLeftRow];
+		microField[0][1] = mField[topLeftColumn][topLeftRow + 1];
+		microField[1][1] = mField[topLeftColumn + 1][topLeftRow + 1];
+		microField[2][1] = mField[topLeftColumn + 2][topLeftRow + 1];
+		microField[0][2] = mField[topLeftColumn][topLeftRow + 2];
+		microField[1][2] = mField[topLeftColumn + 1][topLeftRow + 2];
+		microField[2][2] = mField[topLeftColumn + 2][topLeftRow + 2];
+		// check field positions
+		// middle
+		if (microField[1][1] == botId) {
+			heuristic += MICRO_SIDE_MIDDLE_COMP;
+		} else if (microField[1][1] == opponentId) {
+			heuristic -= MICRO_SIDE_MIDDLE_COMP;
+		}
+		// corners
+		if (microField[0][0] == botId) {
+			heuristic += MICRO_SIDE_CORNER_COMP;
+		} else if (microField[0][0] == opponentId) {
+			heuristic -= MICRO_SIDE_CORNER_COMP;
+		}
+		if (microField[2][0] == botId) {
+			heuristic += MICRO_SIDE_CORNER_COMP;
+		} else if (microField[2][0] == opponentId) {
+			heuristic -= MICRO_SIDE_CORNER_COMP;
+		}
+		if (microField[0][2] == botId) {
+			heuristic += MICRO_SIDE_CORNER_COMP;
+		} else if (microField[0][2] == opponentId) {
+			heuristic -= MICRO_SIDE_CORNER_COMP;
+		}
+		if (microField[2][2] == botId) {
+			heuristic += MICRO_SIDE_CORNER_COMP;
+		} else if (microField[2][2] == opponentId) {
+			heuristic -= MICRO_SIDE_CORNER_COMP;
+		}
+		// sides
+		if (microField[1][0] == botId) {
+			heuristic += MICRO_SIDE_SIDE_COMP;
+		} else if (microField[1][0] == opponentId) {
+			heuristic -= MICRO_SIDE_SIDE_COMP;
+		}
+		if (microField[0][1] == botId) {
+			heuristic += MICRO_SIDE_SIDE_COMP;
+		} else if (microField[0][1] == opponentId) {
+			heuristic -= MICRO_SIDE_SIDE_COMP;
+		}
+		if (microField[2][1] == botId) {
+			heuristic += MICRO_SIDE_SIDE_COMP;
+		} else if (microField[2][1] == opponentId) {
+			heuristic -= MICRO_SIDE_SIDE_COMP;
+		}
+		if (microField[1][2] == botId) {
+			heuristic += MICRO_SIDE_SIDE_COMP;
+		} else if (microField[1][2] == opponentId) {
+			heuristic -= MICRO_SIDE_SIDE_COMP;
+		}
+		for (int row = 0; row < 3; row++) {
+			// check horizontal 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[0][row] == botId) {
+				botConnected++;
+			} else if (microField[0][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[1][row] == botId) {
+				botConnected++;
+			} else if (microField[1][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[2][row] == botId) {
+				botConnected++;
+			} else if (microField[2][row] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		for (int col = 0; col < 3; col++) {
+			// check vertical 2 in a row
+			botConnected = 0;
+			opponentConnected = 0;
+			if (microField[col][0] == botId) {
+				botConnected++;
+			} else if (microField[col][0] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][1] == botId) {
+				botConnected++;
+			} else if (microField[col][1] == opponentId) {
+				opponentConnected++;
+			}
+			if (microField[col][2] == botId) {
+				botConnected++;
+			} else if (microField[col][2] == opponentId) {
+				opponentConnected++;
+			}
+			if (botConnected > 1 && opponentConnected == 0) {
+				heuristic += MICRO_TWO_IN_A_ROW_COMP;
+			} else if (opponentConnected > 1 && botConnected == 0) {
+				heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+			}
+		}
+		// check / diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][2] == botId) {
+			botConnected++;
+		} else if (microField[0][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][0] == botId) {
+			botConnected++;
+		} else if (microField[2][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
+		}
+		// check \ diagonal 2 in a row
+		botConnected = 0;
+		opponentConnected = 0;
+		if (microField[0][0] == botId) {
+			botConnected++;
+		} else if (microField[0][0] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[1][1] == botId) {
+			botConnected++;
+		} else if (microField[1][1] == opponentId) {
+			opponentConnected++;
+		}
+		if (microField[2][2] == botId) {
+			botConnected++;
+		} else if (microField[2][2] == opponentId) {
+			opponentConnected++;
+		}
+		if (botConnected > 1 && opponentConnected == 0) {
+			heuristic += MICRO_TWO_IN_A_ROW_COMP;
+		} else if (opponentConnected > 1 && botConnected == 0) {
+			heuristic -= MICRO_TWO_IN_A_ROW_COMP;
 		}
 		return heuristic;
 	}

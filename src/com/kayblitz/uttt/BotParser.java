@@ -60,7 +60,8 @@ public class BotParser {
 					RAVEHeuristicNode.AMAF_CONFIDENCE = Double.parseDouble(parts[4]);
 				} else if (parts[1].equals("simulationconstants")) {
 					Simulation.UCT_EPT_MAX_MOVES = Integer.parseInt(parts[2]);
-					Simulation.EPT_WIN_LOSS_THRESHOLD = Double.parseDouble(parts[3]);
+					Simulation.RAVE_EPT_MAX_MOVES = Integer.parseInt(parts[3]);
+					Simulation.EPT_WIN_LOSS_THRESHOLD = Double.parseDouble(parts[4]);
 				}
 			} else if (parts[0].equals("action")) {
 				if (parts[1].equals("move")) { /* move requested */
