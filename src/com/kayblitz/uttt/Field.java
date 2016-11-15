@@ -36,6 +36,15 @@ public class Field {
 	 * MicroField refers to any single "mini" TTT field
 	 */
 	public static final int COLS = 9, ROWS = 9;
+	public static final Move[][] MOVES = new Move[COLS][ROWS];
+	
+	static {
+		for (int col = 0; col < COLS; col++) {
+			for (int row = 0; row < ROWS; row++) {
+				MOVES[col][row] = new Move(col, row);
+			}
+		}
+	}
 	
     private int roundNum;
     private int moveNum;
@@ -111,11 +120,11 @@ public class Field {
 
 	public ArrayList<Move> getAvailableMoves() {
 	    ArrayList<Move> moves = new ArrayList<Move>();
-	    for (int x = 0; x < COLS; x++) {
-	    	for (int y = 0; y < ROWS; y++) {
+	    for (int col = 0; col < COLS; col++) {
+	    	for (int row = 0; row < ROWS; row++) {
 	    		// check if in allowed macro field and if field is empty
-                if (macroField[x/3][y/3] == -1 && field[x][y] == 0) {
-                    moves.add(new Move(x, y));
+                if (macroField[col/3][row/3] == -1 && field[col][row] == 0) {
+                    moves.add(MOVES[col][row]);
                 }
             }
         }
