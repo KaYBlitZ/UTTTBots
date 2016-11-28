@@ -22,9 +22,9 @@ public class Simulation {
 	public static final int WIN_FIRST_RANDOM_RAVE = 4;
 	public static final int RANDOM_EPT_RAVE = 5;
 	
-	public static int UCT_EPT_MAX_MOVES = 60;
-	public static int RAVE_EPT_MAX_MOVES = 60;
-	public static double EPT_WIN_LOSS_THRESHOLD = 0.3;
+	public static int UCT_EPT_MAX_MOVES = 50;
+	public static int RAVE_EPT_MAX_MOVES = 50;
+	public static double EPT_WIN_LOSS_THRESHOLD = 0.7;
 	// values are recommended to be in the range [0,1]
 	private static final double WIN = 1;
 	private static final double TIE = 0.5;
@@ -148,7 +148,7 @@ public class Simulation {
 			winner = field.getWinner();
 			currentId = currentId == 1 ? 2 : 1;
 			if (++numMoves == UCT_EPT_MAX_MOVES) {
-				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+				double heuristic = Evaluation.evaluateFieldComprehensive(field, botId, opponentId);
 				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
 					return WIN;
 				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {
@@ -189,7 +189,7 @@ public class Simulation {
 			Move move = moves.get(rand.nextInt(moves.size()));
 			field.makeMove(move, currentId, false);
 			if (++numMoves == UCT_EPT_MAX_MOVES) {
-				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+				double heuristic = Evaluation.evaluateFieldComprehensive(field, botId, opponentId);
 				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
 					return WIN;
 				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {
@@ -222,7 +222,7 @@ public class Simulation {
 			field.makeMove(move, currentId, false);
 			addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
 			if (++numMoves == RAVE_EPT_MAX_MOVES) {
-				double heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+				double heuristic = Evaluation.evaluateFieldComprehensive(field, botId, opponentId);
 				if (Double.compare(heuristic, EPT_WIN_LOSS_THRESHOLD) > 0) {
 					return WIN;
 				} else if (Double.compare(heuristic, -EPT_WIN_LOSS_THRESHOLD) < 0) {

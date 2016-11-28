@@ -169,6 +169,8 @@ public class IterativeDeepeningMinimaxBot extends Bot {
 				return Evaluation.evaluateFieldAdvanced(field, botId, opponentId);
 			case Evaluation.ADVANCED_OPTIMIZED:
 				return Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId);
+			case Evaluation.COMPREHENSIVE:
+				return Evaluation.evaluateFieldComprehensive(field, botId, opponentId);
 			default:
 				throw new RuntimeException("Invalid heuristic evaluation function");
 			}

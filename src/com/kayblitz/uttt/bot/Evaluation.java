@@ -934,24 +934,24 @@ public class Evaluation {
 	 * Comprehensive Evaluation
 	 */
 	
-	private static double MACRO_TWO_IN_A_ROW_COMP = 7.4731143167951;
-	private static double MACRO_MIDDLE_COMP = 5.093110039135993;
-	private static double MACRO_CORNER_COMP = -2.8228110614735313;
-	private static double MACRO_SIDE_COMP = -2.263435727177493;
+	private static final double MACRO_TWO_IN_A_ROW_COMP = 7.4731143167951;
+	private static final double MACRO_MIDDLE_COMP = 5.093110039135993;
+	private static final double MACRO_CORNER_COMP = -2.8228110614735313;
+	private static final double MACRO_SIDE_COMP = -2.263435727177493;
 	
-	private static double MICRO_TWO_IN_A_ROW_COMP = 0.1969225685539514;
+	private static final double MICRO_TWO_IN_A_ROW_COMP = 0.1969225685539514;
 	
-	private static double MICRO_MIDDLE_MIDDLE_COMP = 3.3236142801438406;
-	private static double MICRO_MIDDLE_CORNER_COMP = 3.1335267882050735;
-	private static double MICRO_MIDDLE_SIDE_COMP = -1.5451956807896643;
+	private static final double MICRO_MIDDLE_MIDDLE_COMP = 3.3236142801438406;
+	private static final double MICRO_MIDDLE_CORNER_COMP = 3.1335267882050735;
+	private static final double MICRO_MIDDLE_SIDE_COMP = -1.5451956807896643;
 	
-	private static double MICRO_CORNER_MIDDLE_COMP = -0.8282925953294827;
-	private static double MICRO_CORNER_CORNER_COMP = -0.3731218288460024;
-	private static double MICRO_CORNER_SIDE_COMP = -1.5242912219260696 ;
+	private static final double MICRO_CORNER_MIDDLE_COMP = -0.8282925953294827;
+	private static final double MICRO_CORNER_CORNER_COMP = -0.3731218288460024;
+	private static final double MICRO_CORNER_SIDE_COMP = -1.5242912219260696 ;
 	
-	private static double MICRO_SIDE_MIDDLE_COMP = 1.5864232256063437;
-	private static double MICRO_SIDE_CORNER_COMP = 1.110055969943045;
-	private static double MICRO_SIDE_SIDE_COMP = -1.4313661716416888;
+	private static final double MICRO_SIDE_MIDDLE_COMP = 1.5864232256063437;
+	private static final double MICRO_SIDE_CORNER_COMP = 1.110055969943045;
+	private static final double MICRO_SIDE_SIDE_COMP = -1.4313661716416888;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.
