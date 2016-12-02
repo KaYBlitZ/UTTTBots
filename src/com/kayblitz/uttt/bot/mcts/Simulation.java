@@ -17,10 +17,14 @@ public class Simulation {
 	
 	public static final int RANDOM = 0;
 	public static final int WIN_FIRST_RANDOM = 1;
+	
 	public static final int RANDOM_EPT = 2;
 	public static final int WIN_FIRST_RANDOM_EPT = 3;
-	public static final int WIN_FIRST_RANDOM_RAVE = 4;
-	public static final int RANDOM_EPT_RAVE = 5;
+	
+	public static final int RANDOM_RAVE = 4;
+	public static final int WIN_FIRST_RANDOM_RAVE = 5;
+	
+	public static final int RANDOM_EPT_RAVE = 6;
 	
 	public static int UCT_EPT_MAX_MOVES = 50;
 	public static int RAVE_EPT_MAX_MOVES = 50;
@@ -112,6 +116,28 @@ public class Simulation {
 				}
 			}
 			// no winning move, just play a random move
+			Move move = moves.get(rand.nextInt(moves.size()));
+			field.makeMove(move, currentId, false);
+			addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
+			winner = field.getWinner();
+			currentId = currentId == 1 ? 2 : 1;
+		}
+		if (winner == botId) {
+			return WIN;
+		} else if (winner == 0) {
+			return TIE;
+		} else {
+			return LOSS;
+		}
+	}
+	
+	public static double simulateRandomRAVE(Field field, RAVENode expanded, ArrayList<Move> botMoves,
+			ArrayList<Move> opponentMoves, int botId, int opponentId) {
+		expanded.restoreState(field);
+		int winner = expanded.winner;
+		int currentId = expanded.nextMoveBotId;
+		while (winner < 0) {
+			ArrayList<Move> moves = field.getAvailableMoves();
 			Move move = moves.get(rand.nextInt(moves.size()));
 			field.makeMove(move, currentId, false);
 			addMove(move, currentId, botMoves, opponentMoves, botId, opponentId);
