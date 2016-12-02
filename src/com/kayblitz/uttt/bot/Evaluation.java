@@ -952,6 +952,8 @@ public class Evaluation {
 	private static final double MICRO_SIDE_MIDDLE_COMP = 1.5864232256063437;
 	private static final double MICRO_SIDE_CORNER_COMP = 1.110055969943045;
 	private static final double MICRO_SIDE_SIDE_COMP = -1.4313661716416888;
+	/** Max possible value for the comprehensive evaluation. This value is not obtainable through regular play. **/
+	public static final double MAX_HEURISTIC_COMP = 133.49543311667102;
 	
 	/**
 	 * Same as simple, but also gives more points for having two in-a-row markers.

@@ -31,7 +31,7 @@ public class UCTHeuristicNode extends UCTNode {
 			heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId) + Evaluation.MAX_HEURISTIC_OPTIMIZED;
 			TRANSPOSITION_TABLE.storeHeuristic(zobristKey, heuristic);
 		}*/
-		heuristic = Evaluation.evaluateFieldAdvancedOptimized(field, botId, opponentId) + Evaluation.MAX_HEURISTIC_OPTIMIZED;
+		heuristic = Evaluation.evaluateFieldComprehensive(field, botId, opponentId) + Evaluation.MAX_HEURISTIC_COMP;
 		heuristic *= HEURISTIC_MULTIPLIER;
 		q = heuristic;
 		n = (int) (q * UCT_CONFIDENCE);
