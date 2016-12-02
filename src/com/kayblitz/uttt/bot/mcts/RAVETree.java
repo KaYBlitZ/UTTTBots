@@ -96,12 +96,10 @@ public class RAVETree extends MCTree {
 	 */
 	protected double simulate(RAVENode expanded, ArrayList<Move> botMoves, ArrayList<Move> opponentMoves) {
 		switch (simulationType) {
-		case Simulation.RANDOM_RAVE:
-			return Simulation.simulateRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
-		case Simulation.WIN_FIRST_RANDOM_RAVE:
-			return Simulation.simulateWinFirstRandomRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
-		case Simulation.RANDOM_EPT_RAVE:
-			return Simulation.simulateRandomEPTRAVE(field, expanded, botMoves, opponentMoves, botId, opponentId);
+		case Simulation.RAVE_RANDOM:
+			return Simulation.simulateRAVERandom(field, expanded, botMoves, opponentMoves, botId, opponentId);
+		case Simulation.RAVE_RANDOM_EPT:
+			return Simulation.simulateRAVERandomEPT(field, expanded, botMoves, opponentMoves, botId, opponentId);
 		default:
 			throw new RuntimeException("Invalid RAVE simulation type");
 		}

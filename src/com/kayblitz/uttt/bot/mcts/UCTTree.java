@@ -88,14 +88,12 @@ public class UCTTree extends MCTree {
 	 */
 	private double simulate(UCTNode expanded) {
 		switch (simulationType) {
-		case Simulation.RANDOM:
-			return Simulation.simulateRandom(field, expanded, botId, opponentId);
-		case Simulation.WIN_FIRST_RANDOM:
-			return Simulation.simulateWinFirstRandom(field, expanded, botId, opponentId);
-		case Simulation.RANDOM_EPT:
-			return Simulation.simulateRandomEPT(field, expanded, botId, opponentId);
-		case Simulation.WIN_FIRST_RANDOM_EPT:
-			return Simulation.simulateWinFirstRandomEPT(field, expanded, botId, opponentId);
+		case Simulation.UCT_RANDOM:
+			return Simulation.simulateUCTRandom(field, expanded, botId, opponentId);
+		case Simulation.UCT_WIN_FIRST_RANDOM:
+			return Simulation.simulateUCTWinFirstRandom(field, expanded, botId, opponentId);
+		case Simulation.UCT_RANDOM_EPT:
+			return Simulation.simulateUCTRandomEPT(field, expanded, botId, opponentId);
 		default:
 			throw new RuntimeException("Invalid UCT simulation type");
 		}
