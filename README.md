@@ -1,0 +1,1 @@
+These are various bots used to play Ultimate Tic-Tac-Toe at theaigames.com. These bots should be used in conjunction with uttt-engine for testing purposes.
